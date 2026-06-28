@@ -1,0 +1,1413 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html lang='id' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+<head>
+    <meta charset='UTF-8'/>
+    <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
+    <title>Cahya &amp; Embun Florist - Toko Bunga Bogor</title>
+    <!-- Tailwind CSS & Font Inter -->
+    <script src='https://cdn.tailwindcss.com'/>
+    <link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap' rel='stylesheet'/>
+    <!-- FontAwesome & Phosphor Icons -->
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
+    <!-- ChartJS untuk Dashboard Admin -->
+    <script src='https://cdn.jsdelivr.net/npm/chart.js'/>
+    
+    <style>
+        body {
+            font-family: &#39;Inter&#39;, sans-serif;
+        }
+        .hidden-section { display: none; }
+        .active-section { display: block; }
+        /* Kustom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 10px;
+        }
+        /* Iframe Blogger custom full height */
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+    </style>
+<b:skin><![CDATA[
+
+]]></b:skin>
+</head>
+<body class='bg-gray-50 text-gray-800 flex flex-col min-h-screen'>
+
+    <script>
+        // KONFIGURASI APLIKASI
+        // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER
+        const IS_PREVIEW = false; 
+        const GAS_URL = &quot;https://script.google.com/macros/s/AKfycbzOEVaP-QtzzfRCEzejOousZAlzbVFOQjduiWCc79g0DYAPeXsmRsO2DAhOuKuVP_HM/exec&quot;;
+
+        // State Global Aplikasi
+        let currentRole = &quot;Guest&quot;;
+        let currentUser = null;
+        let cart = [];
+        let storeProfile = {
+            name: &quot;Cahya &amp; Embun Florist&quot;,
+            slogan: &quot;Toko Bunga Bogor&quot;,
+            contact: &quot;085881654988&quot;,
+            address: &quot;Jl. Cimanggu Barata, No. 82, RT 03 RW 04, Kelurahan Kedung Jaya, Kecamatan Tanah Sareal, Kota Bogor, 16164&quot;,
+            mapsUrl: &quot;https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.456073836109!2d106.7865239!3d-6.5900593!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69c5cb1fa94065%3A0xe103be4cfb34d70a!2sCahya%20%26%20Embun%20Florist!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid&quot;
+        };
+        
+        // Dummy Database untuk mode preview (Akan disinkronkan dengan GAS)
+        let dbCategories = [&quot;Bunga Papan&quot;, &quot;Hand Bouquet&quot;, &quot;Bunga Standing&quot;, &quot;Bunga Meja&quot;, &quot;Krans Duka Cita&quot;, &quot;Parcel Buah&quot;];
+        
+        let dbProducts = [
+            { id: &quot;P001&quot;, name: &quot;Bunga Papan Happy Wedding 101&quot;, category: &quot;Bunga Papan&quot;, price: 500000, desc: &quot;Ukuran 2m x 1.2m, Menggunakan mawar &amp; krisan segar pilihan. Sangat pas untuk merayakan pernikahan rekan bisnis atau sahabat terdekat.&quot;, img: &quot;https://images.unsplash.com/photo-1545239351-ef35f43d514b?auto=format&amp;fit=crop&amp;w=600&amp;q=80&quot;, stock: 15, isBest: true },
+            { id: &quot;P002&quot;, name: &quot;Premium Hand Bouquet White Lily&quot;, category: &quot;Hand Bouquet&quot;, price: 750000, desc: &quot;Buket tangan mewah berisi perpaduan bunga mawar putih premium dan bunga Lily wangi yang memukau.&quot;, img: &quot;https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&amp;fit=crop&amp;w=600&amp;q=80&quot;, stock: 8, isBest: true },
+            { id: &quot;P003&quot;, name: &quot;Bunga Standing Congratulations&quot;, category: &quot;Bunga Standing&quot;, price: 900000, desc: &quot;Rangkaian bunga standing 2 tingkat mewah dengan dedaunan eksotis, melambangkan kesuksesan yang megah.&quot;, img: &quot;https://images.unsplash.com/photo-1591886960571-74d43a9d4166?auto=format&amp;fit=crop&amp;w=600&amp;q=80&quot;, stock: 10, isBest: true },
+            { id: &quot;P004&quot;, name: &quot;Classic Red Rose Box &amp; Table Flower&quot;, category: &quot;Bunga Meja&quot;, price: 450000, desc: &quot;Vas keramik cantik berisi mawar merah segar beraroma manis. Sempurna untuk dekorasi ruang tamu.&quot;, img: &quot;https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&amp;fit=crop&amp;w=600&amp;q=80&quot;, stock: 25, isBest: false },
+            { id: &quot;P005&quot;, name: &quot;Krans Duka Cita Condolences&quot;, category: &quot;Krans Duka Cita&quot;, price: 600000, desc: &quot;Krans duka cita lingkaran dengan bunga segar dominan putih dan ungu melambangkan duka cita mendalam.&quot;, img: &quot;https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&amp;fit=crop&amp;w=600&amp;q=80&quot;, stock: 5, isBest: false }
+        ];
+
+        let dbBlogs = [
+            { id: &quot;B001&quot;, title: &quot;Tren Karangan Bunga Pernikahan Terbaik Tahun 2026&quot;, excerpt: &quot;Melihat lebih dekat bunga papan modern dan pilihan warna pastel yang kian digemari pengantin baru...&quot;, content: &quot;Pernikahan di tahun 2026 didominasi oleh dekorasi bunga papan bergaya modern minimalis. Penggunaan warna pastel seperti dusty pink, lilac, dan krem lembut kini menggeser warna-warna kontras tradisional. Bunga mawar lokal Bogor yang dikombinasikan dengan baby&#39;s breath segar menghasilkan perpaduan eksklusif dan anggun.&quot;, date: &quot;2026-06-15&quot;, author: &quot;Admin Cahya&quot; },
+            { id: &quot;B002&quot;, title: &quot;Cara Merawat Buket Bunga Agar Tetap Segar Lebih Lama&quot;, excerpt: &quot;Simak tips jitu memotong batang bunga dan mengganti air vas agar bunga segar Anda tahan hingga seminggu...&quot;, content: &quot;Banyak yang kecewa karena hand bouquet layu dalam sehari. Kuncinya adalah rajin memotong bagian bawah batang miring 45 derajat menggunakan pisau tajam (bukan gunting tumpul), ganti air bersih di vas setiap pagi, dan jauhkan dari paparan sinar matahari langsung atau hembusan udara AC ekstrem.&quot;, date: &quot;2026-06-20&quot;, author: &quot;Embun Florist&quot; }
+        ];
+
+        let dbSales = [
+            { id: &quot;TX001&quot;, user: &quot;Rian Wijaya&quot;, items: &quot;Bunga Papan Happy Wedding 101 (1)&quot;, total: 500000, date: &quot;2026-06-21&quot;, status: &quot;Selesai&quot; },
+            { id: &quot;TX002&quot;, user: &quot;Siti Rahma&quot;, items: &quot;Premium Hand Bouquet White Lily (2)&quot;, total: 1500000, date: &quot;2026-06-23&quot;, status: &quot;Selesai&quot; },
+            { id: &quot;TX003&quot;, user: &quot;Budi Santoso&quot;, items: &quot;Classic Red Rose Box (1)&quot;, total: 450000, date: &quot;2026-06-24&quot;, status: &quot;Pending&quot; }
+        ];
+    </script>
+
+    <!-- Blogger Hidden Post Thumbnail (Kebutuhan optimasi indexing crawler Blogger) -->
+    <div class='hidden'>
+        <img alt='Cahya &amp; Embun Florist Bogor' src='https://images.unsplash.com/photo-1545239351-ef35f43d514b?auto=format&amp;fit=crop&amp;w=1200&amp;q=80'/>
+        <p>Cahya &amp; Embun Florist adalah Toko Bunga Bogor terbaik dan berkualitas yang menyediakan karangan bunga papan, standing flower, buket bunga, bunga meja dengan pengiriman cepat 24 jam gratis ongkir untuk area Bogor Kota.</p>
+    </div>
+
+    <!-- Header Atas: Informasi Kontak Singkat -->
+    <div class='bg-green-700 text-white text-xs py-2 px-4'>
+        <div class='container mx-auto flex flex-wrap justify-between items-center gap-2'>
+            <div class='flex items-center space-x-4'>
+                <span><i class='fa-solid fa-phone mr-1'/> 085881654988</span>
+                <span><i class='fa-solid fa-map-marker-alt mr-1'/> Tanah Sareal, Kota Bogor</span>
+            </div>
+            <div class='flex items-center space-x-3'>
+                <span class='text-green-200'>Buka 24 Jam Nonstop!</span>
+                <a class='hover:underline font-bold' href='https://wa.me/6285881654988' target='_blank'><i class='fa-brands fa-whatsapp text-green-300'/> Fast Response</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class='bg-white shadow-md sticky top-0 z-40'>
+        <div class='container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4'>
+            <!-- Brand Logo -->
+            <div class='cursor-pointer flex items-center space-x-3' onclick='showSection(&apos;beranda&apos;)'>
+                <div class='bg-green-100 p-2.5 rounded-full text-green-700 shadow-inner'>
+                    <i class='fa-solid fa-seedling text-2xl'/>
+                </div>
+                <div>
+                    <h1 class='font-extrabold text-2xl text-green-800 tracking-tight leading-none'>Cahya &amp; Embun</h1>
+                    <span class='text-xs text-gray-500 font-medium tracking-widest uppercase'>Toko Bunga Bogor</span>
+                </div>
+            </div>
+
+            <!-- Tab Navigation Menu -->
+            <nav class='flex flex-wrap justify-center gap-2 sm:gap-4 font-semibold text-sm text-gray-600'>
+                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick='showSection(&apos;beranda&apos;)'>Beranda</button>
+                
+                <!-- Dropdown Kategori Produk -->
+                <div class='relative group'>
+                    <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition flex items-center gap-1'>
+                        Produk <i class='fa-solid fa-chevron-down text-xs'/>
+                    </button>
+                    <div class='absolute left-0 mt-1 w-48 bg-white border border-gray-100 rounded-lg shadow-xl hidden group-hover:block z-50 py-2' id='nav-dropdown-categories'>
+                        <!-- Diisi Kategori secara dinamis -->
+                    </div>
+                </div>
+
+                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick='showSection(&apos;tentang-kami&apos;)'>Tentang Kami</button>
+                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick='showSection(&apos;blogs&apos;)'>Blog</button>
+            </nav>
+
+            <!-- User Actions & Cart -->
+            <div class='flex items-center space-x-3'>
+                <!-- Cart Button -->
+                <button class='relative p-2 bg-gray-100 hover:bg-green-100 text-gray-700 hover:text-green-700 rounded-full transition shadow-sm' onclick='openCartModal()'>
+                    <i class='fa-solid fa-shopping-basket text-lg'/>
+                    <span class='absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden' id='cart-badge'>0</span>
+                </button>
+
+                <!-- Dynamic Auth Button -->
+                <div id='auth-actions-container'>
+                    <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick='showSection(&apos;login-section&apos;)'>
+                        <i class='fa-solid fa-sign-in-alt'/> Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Application Container -->
+    <main class='flex-grow container mx-auto px-4 py-6' id='app-container'>
+
+        <!-- SECTION: BERANDA -->
+        <section class='active-section space-y-12' id='beranda'>
+            <!-- Slider Banner / Jumbotron Hero Section -->
+            <div class='relative overflow-hidden bg-gradient-to-r from-emerald-800 to-green-600 text-white rounded-2xl shadow-xl min-h-[340px] flex items-center'>
+                <div class='absolute inset-0 opacity-15 mix-blend-overlay bg-cover bg-center' style='background-image: url(&apos;https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&amp;fit=crop&amp;w=1200&amp;q=80&apos;)'/>
+                <div class='relative z-10 p-6 md:p-12 max-w-2xl space-y-4'>
+                    <span class='bg-green-500/30 text-green-200 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full'>Toko Karangan Bunga Bogor Terbaik</span>
+                    <h2 class='text-3xl md:text-5xl font-extrabold leading-tight'>Keindahan Segar, Rangkaian Sempurna untuk Momen Berharga Anda</h2>
+                    <p class='text-green-100 text-sm md:text-base leading-relaxed'>Melayani pembuatan karangan bunga papan, buket, standing flower, dan krans duka cita untuk wilayah Bogor Kota &amp; Kabupaten dengan layanan kirim cepat 24 jam gratis ongkos kirim.</p>
+                    <div class='flex flex-wrap gap-3 pt-2'>
+                        <button class='bg-white hover:bg-green-50 text-green-800 font-bold px-6 py-3 rounded-lg transition shadow-lg flex items-center gap-2' onclick='scrollToProducts()'>
+                            <i class='fa-solid fa-store'/> Belanja Sekarang
+                        </button>
+                        <a class='bg-green-500 hover:bg-green-400 text-white font-bold px-6 py-3 rounded-lg transition shadow-lg flex items-center gap-2' href='https://wa.me/6285881654988' target='_blank'>
+                            <i class='fa-brands fa-whatsapp text-lg'/> Hubungi WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slider Produk Terlaris (Featured Products) -->
+            <div class='space-y-4'>
+                <div class='flex justify-between items-end'>
+                    <div>
+                        <h2 class='text-2xl font-bold text-gray-800 flex items-center gap-2'>
+                            <i class='fa-solid fa-fire text-amber-500'/> Produk Terlaris
+                        </h2>
+                        <p class='text-sm text-gray-500'>Rangkaian bunga paling banyak dicari dan direkomendasikan pelanggan kami.</p>
+                    </div>
+                    <!-- Navigation Buttons for Slider (Custom touch/click swipe) -->
+                    <div class='flex gap-2'>
+                        <button class='p-2 bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick='scrollBestSellers(&apos;left&apos;)'><i class='fa-solid fa-arrow-left'/></button>
+                        <button class='p-2 bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick='scrollBestSellers(&apos;right&apos;)'><i class='fa-solid fa-arrow-right'/></button>
+                    </div>
+                </div>
+                
+                <!-- Horizontal Scrollable Container -->
+                <div class='flex gap-6 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory' id='bestseller-slider'>
+                    <!-- Dinamis terisi oleh JavaScript -->
+                </div>
+            </div>
+
+            <!-- Grid Produk per Kategori -->
+            <div class='space-y-12 pt-4' id='kategori-beranda-section'>
+                <!-- Template grid kategori akan otomatis di-generate oleh JS -->
+            </div>
+        </section>
+
+        <!-- SECTION: PRODUK (KATALOG FILTER) -->
+        <section class='hidden-section space-y-6' id='produk'>
+            <div class='text-center max-w-xl mx-auto space-y-2'>
+                <h2 class='text-3xl font-extrabold text-gray-800'>Katalog Koleksi Florist</h2>
+                <p class='text-sm text-gray-500'>Pilih dan sesuaikan karangan bunga terbaik sesuai dengan kebutuhan momen berharga Anda.</p>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class='bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap gap-4 items-center justify-between'>
+                <!-- Dropdown Kategori -->
+                <div class='flex flex-wrap gap-2' id='katalog-filter-buttons'>
+                    <!-- Tombol filter kategori di-generate dinamis -->
+                </div>
+                <!-- Pencarian -->
+                <div class='relative w-full md:w-64'>
+                    <input class='w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='katalog-search' oninput='filterKatalog()' placeholder='Cari nama bunga...' type='text'/>
+                    <span class='absolute left-3.5 top-2.5 text-gray-400'><i class='fa-solid fa-magnifying-glass'/></span>
+                </div>
+            </div>
+
+            <!-- Grid Item Hasil Filter -->
+            <div class='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6' id='katalog-grid'>
+                <!-- Diisi via JavaScript -->
+            </div>
+        </section>
+
+        <!-- SECTION: TENTANG KAMI -->
+        <section class='hidden-section max-w-4xl mx-auto space-y-8' id='tentang-kami'>
+            <div class='text-center space-y-2'>
+                <h2 class='text-3xl font-extrabold text-gray-800'>Tentang Cahya &amp; Embun Florist</h2>
+                <p class='text-green-600 font-semibold uppercase tracking-wider text-xs'>Penyedia Rangkaian Bunga Segar di Bogor</p>
+            </div>
+
+            <div class='grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100'>
+                <img alt='About Florist' class='rounded-xl w-full object-cover h-64 shadow-md' src='https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&amp;fit=crop&amp;w=600&amp;q=80'/>
+                <div class='space-y-4'>
+                    <h3 class='text-xl font-bold text-gray-800'>Kreasi Terbaik &amp; Terjangkau</h3>
+                    <p class='text-gray-600 text-sm leading-relaxed'>Cahya &amp; Embun Florist merupakan toko karangan bunga langsung yang berdomisili di Kota Bogor. Kami melayani pembuatan aneka karangan bunga untuk wilayah Bogor Raya hingga Jabodetabek.</p>
+                    <p class='text-gray-600 text-sm leading-relaxed'>Dengan bunga segar pilihan yang didatangkan langsung dari perkebunan terbaik, tim desainer ahli kami siap merangkai ucapan kebahagiaan, sukses, khitanan, hingga ucapan simpati duka cita mendalam.</p>
+                    <div class='grid grid-cols-2 gap-4 pt-2'>
+                        <div class='flex items-center gap-2'><i class='fa-solid fa-circle-check text-green-500'/> <span class='text-xs font-semibold text-gray-700'>Layanan 24 Jam</span></div>
+                        <div class='flex items-center gap-2'><i class='fa-solid fa-circle-check text-green-500'/> <span class='text-xs font-semibold text-gray-700'>Gratis Ongkir Bogor</span></div>
+                        <div class='flex items-center gap-2'><i class='fa-solid fa-circle-check text-green-500'/> <span class='text-xs font-semibold text-gray-700'>Pengerjaan Kilat</span></div>
+                        <div class='flex items-center gap-2'><i class='fa-solid fa-circle-check text-green-500'/> <span class='text-xs font-semibold text-gray-700'>Bunga Segar Terbaik</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: BLOGS -->
+        <section class='hidden-section space-y-6' id='blogs'>
+            <div class='text-center max-w-xl mx-auto space-y-2'>
+                <h2 class='text-3xl font-extrabold text-gray-800'>Edukasi &amp; Blog Kami</h2>
+                <p class='text-sm text-gray-500'>Tips merawat bunga, inspirasi rangkaian dekorasi pernikahan, dan kabar terbaru seputar floristry.</p>
+            </div>
+
+            <!-- Grid Blogs -->
+            <div class='grid grid-cols-1 md:grid-cols-2 gap-6' id='blog-grid'>
+                <!-- Terisi via JS -->
+            </div>
+        </section>
+
+        <!-- SECTION: LOGIN SECTION -->
+        <section class='hidden-section max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100 space-y-6 my-8' id='login-section'>
+            <div class='text-center space-y-2'>
+                <h3 class='text-2xl font-bold text-gray-800'>Masuk ke Portal</h3>
+                <p class='text-sm text-gray-400'>Gunakan akun Anda untuk berbelanja atau mengelola toko.</p>
+            </div>
+
+            <div class='space-y-4'>
+                <div>
+                    <label class='block text-xs font-bold text-gray-500 uppercase mb-1.5'>Username</label>
+                    <input class='w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='login-username' placeholder='Masukkan username' type='text'/>
+                </div>
+                <div>
+                    <label class='block text-xs font-bold text-gray-500 uppercase mb-1.5'>Password</label>
+                    <input class='w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='login-password' placeholder='Masukkan password' type='password'/>
+                </div>
+                <button class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2' onclick='handleLogin()'>
+                    <i class='fa-solid fa-lock-open'/> Verifikasi Keamanan
+                </button>
+            </div>
+
+            <div class='bg-gray-50 p-4 rounded-xl border border-gray-100 text-xs text-gray-500 space-y-1'>
+                <p class='font-semibold text-gray-600'><i class='fa-solid fa-circle-info'/> Info Login Demo / Preview:</p>
+                <p>🔑 <strong>Admin:</strong> username: <code class='bg-gray-200 px-1 rounded text-red-600'>admin</code> | password: <code class='bg-gray-200 px-1 rounded text-red-600'>edudigital</code></p>
+                <p>🔑 <strong>Peserta/Pelanggan:</strong> username: <code class='bg-gray-200 px-1 rounded text-red-600'>peserta</code> | password: <code class='bg-gray-200 px-1 rounded text-red-600'>edudigital</code></p>
+            </div>
+        </section>
+
+        <!-- SECTION: DASHBOARD PELANGGAN -->
+        <section class='hidden-section space-y-6' id='dashboard-pelanggan'>
+            <div class='bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-100 flex flex-wrap justify-between items-center gap-4'>
+                <div>
+                    <h2 class='text-2xl font-bold text-green-800' id='welcome-customer-name'>Halo, Pelanggan!</h2>
+                    <p class='text-sm text-gray-600'>Selamat datang kembali di panel riwayat transaksi Anda.</p>
+                </div>
+                <button class='bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-bold transition flex items-center gap-1' onclick='handleLogout()'>
+                    <i class='fa-solid fa-sign-out-alt'/> Logout
+                </button>
+            </div>
+
+            <!-- Riwayat Belanja User -->
+            <div class='bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-4'>
+                <h3 class='font-bold text-lg text-gray-800'><i class='fa-solid fa-history text-green-600'/> Riwayat Pesanan Anda</h3>
+                <div class='overflow-x-auto'>
+                    <table class='w-full text-left text-sm'>
+                        <thead class='bg-gray-50 text-gray-500 uppercase text-xs'>
+                            <tr>
+                                <th class='p-3'>ID Transaksi</th>
+                                <th class='p-3'>Bunga / Produk</th>
+                                <th class='p-3'>Total Belanja</th>
+                                <th class='p-3'>Tanggal Pesan</th>
+                                <th class='p-3'>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id='customer-orders-tbody'>
+                            <!-- Diisi via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: DASHBOARD ADMIN -->
+        <section class='hidden-section space-y-8' id='dashboard-admin'>
+            <div class='bg-gray-900 text-white p-6 rounded-2xl flex flex-wrap justify-between items-center gap-4'>
+                <div>
+                    <h2 class='text-2xl font-extrabold tracking-tight'>Admin Control Panel</h2>
+                    <p class='text-xs text-gray-400'>Selamat datang, Pengelola Cahya &amp; Embun Florist.</p>
+                </div>
+                <div class='flex gap-2'>
+                    <button class='bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition' onclick='handleLogout()'>
+                        <i class='fa-solid fa-power-off'/> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistik & Grafik -->
+            <div class='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+                <!-- Kiri: Kartu Laporan Ringkas -->
+                <div class='space-y-4 lg:col-span-1'>
+                    <div class='bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between'>
+                        <div>
+                            <span class='text-xs text-gray-400 uppercase font-bold'>Total Penjualan</span>
+                            <h4 class='text-xl font-black text-gray-800' id='stat-total-revenue'>Rp 2.450.000</h4>
+                        </div>
+                        <div class='bg-emerald-100 text-emerald-600 p-3 rounded-lg'><i class='fa-solid fa-wallet text-xl'/></div>
+                    </div>
+                    <div class='bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between'>
+                        <div>
+                            <span class='text-xs text-gray-400 uppercase font-bold'>Pesanan Masuk</span>
+                            <h4 class='text-xl font-black text-gray-800' id='stat-total-orders'>3</h4>
+                        </div>
+                        <div class='bg-blue-100 text-blue-600 p-3 rounded-lg'><i class='fa-solid fa-receipt text-xl'/></div>
+                    </div>
+                    <div class='bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between'>
+                        <div>
+                            <span class='text-xs text-gray-400 uppercase font-bold'>Jumlah Kategori</span>
+                            <h4 class='text-xl font-black text-gray-800' id='stat-total-categories'>6</h4>
+                        </div>
+                        <div class='bg-purple-100 text-purple-600 p-3 rounded-lg'><i class='fa-solid fa-tags text-xl'/></div>
+                    </div>
+                </div>
+
+                <!-- Kanan: Diagram Perkembangan Toko -->
+                <div class='bg-white p-5 rounded-xl border border-gray-100 shadow-sm lg:col-span-2'>
+                    <h3 class='font-bold text-sm text-gray-500 uppercase tracking-wider mb-4'>Grafik Laporan Perkembangan Penjualan (Tahun 2026)</h3>
+                    <div class='h-64 relative'>
+                        <canvas id='chartPenjualan'/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Admin Management -->
+            <div class='bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden'>
+                <div class='flex border-b border-gray-100 bg-gray-50 text-xs font-bold text-gray-500 uppercase'>
+                    <button class='p-4 border-b-2 border-green-600 text-green-700 bg-white' id='tab-p-produk' onclick='switchAdminTab(&apos;p-produk&apos;)'>Produk (Bunga)</button>
+                    <button class='p-4 border-b-2 border-transparent hover:text-gray-700' id='tab-p-kategori' onclick='switchAdminTab(&apos;p-kategori&apos;)'>Kategori</button>
+                    <button class='p-4 border-b-2 border-transparent hover:text-gray-700' id='tab-p-blogs' onclick='switchAdminTab(&apos;p-blogs&apos;)'>Blogs</button>
+                    <button class='p-4 border-b-2 border-transparent hover:text-gray-700' id='tab-p-penjualan' onclick='switchAdminTab(&apos;p-penjualan&apos;)'>Penjualan</button>
+                </div>
+
+                <div class='p-6'>
+                    <!-- Tab Content: Produk -->
+                    <div class='admin-tab-content space-y-6' id='admin-p-produk'>
+                        <div class='flex justify-between items-center'>
+                            <h4 class='font-bold text-gray-700'>Manajemen Produk Bunga</h4>
+                            <button class='bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1' onclick='openAddProductModal()'>
+                                <i class='fa-solid fa-plus'/> Tambah Bunga
+                            </button>
+                        </div>
+                        <div class='overflow-x-auto'>
+                            <table class='w-full text-left text-xs'>
+                                <thead class='bg-gray-50 text-gray-500 uppercase'>
+                                    <tr>
+                                        <th class='p-3'>Gambar</th>
+                                        <th class='p-3'>Nama Bunga</th>
+                                        <th class='p-3'>Kategori</th>
+                                        <th class='p-3'>Harga</th>
+                                        <th class='p-3'>Stok</th>
+                                        <th class='p-3'>Terlaris</th>
+                                        <th class='p-3'>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='admin-produk-tbody'>
+                                    <!-- Diisi via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Kategori -->
+                    <div class='admin-tab-content hidden space-y-6' id='admin-p-kategori'>
+                        <div class='flex justify-between items-center'>
+                            <h4 class='font-bold text-gray-700'>Daftar Kategori</h4>
+                            <div class='flex gap-2'>
+                                <input class='border rounded px-3 py-1.5 text-xs focus:ring-1 focus:ring-green-500' id='input-kategori-baru' placeholder='Kategori baru' type='text'/>
+                                <button class='bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-2 rounded transition' onclick='handleAddCategory()'>Tambah</button>
+                            </div>
+                        </div>
+                        <div class='overflow-x-auto max-w-md'>
+                            <table class='w-full text-left text-xs'>
+                                <thead class='bg-gray-50 text-gray-500 uppercase'>
+                                    <tr>
+                                        <th class='p-3'>Nama Kategori</th>
+                                        <th class='p-3'>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='admin-kategori-tbody'>
+                                    <!-- Diisi via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Blogs -->
+                    <div class='admin-tab-content hidden space-y-6' id='admin-p-blogs'>
+                        <div class='flex justify-between items-center'>
+                            <h4 class='font-bold text-gray-700'>Daftar Artikel Blog</h4>
+                            <button class='bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1' onclick='openAddBlogModal()'>
+                                <i class='fa-solid fa-plus'/> Artikel Baru
+                            </button>
+                        </div>
+                        <div class='overflow-x-auto'>
+                            <table class='w-full text-left text-xs'>
+                                <thead class='bg-gray-50 text-gray-500 uppercase'>
+                                    <tr>
+                                        <th class='p-3'>Judul Artikel</th>
+                                        <th class='p-3'>Penulis</th>
+                                        <th class='p-3'>Tanggal</th>
+                                        <th class='p-3'>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='admin-blogs-tbody'>
+                                    <!-- Diisi via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content: Penjualan -->
+                    <div class='admin-tab-content hidden space-y-6' id='admin-p-penjualan'>
+                        <h4 class='font-bold text-gray-700'>Kelola Status Penjualan</h4>
+                        <div class='overflow-x-auto'>
+                            <table class='w-full text-left text-xs'>
+                                <thead class='bg-gray-50 text-gray-500 uppercase'>
+                                    <tr>
+                                        <th class='p-3'>ID</th>
+                                        <th class='p-3'>Pelanggan</th>
+                                        <th class='p-3'>Item Pesanan</th>
+                                        <th class='p-3'>Total Transaksi</th>
+                                        <th class='p-3'>Status</th>
+                                        <th class='p-3'>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='admin-penjualan-tbody'>
+                                    <!-- Diisi via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER TOKO -->
+    <footer class='bg-green-950 text-green-100 border-t border-green-900 mt-auto'>
+        <div class='container mx-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-8'>
+            <!-- Kolom 1: Informasi Kontak -->
+            <div class='space-y-4'>
+                <div class='flex items-center space-x-2'>
+                    <i class='fa-solid fa-seedling text-2xl text-green-400'/>
+                    <h3 class='font-bold text-lg text-white'>Cahya &amp; Embun Florist</h3>
+                </div>
+                <p class='text-xs text-green-200/80 leading-relaxed'>Penyedia karangan bunga berkualitas langsung dengan pengiriman se-Bogor Raya. Buka 24 Jam.</p>
+                <div class='text-xs space-y-2 text-green-200'>
+                    <p><i class='fa-solid fa-location-dot text-green-400 mr-2'/> Jl. Cimanggu Barata, No. 82, RT 03 RW 04, Kelurahan Kedung Jaya, Kecamatan Tanah Sareal, Kota Bogor, 16164</p>
+                    <p><i class='fa-solid fa-phone text-green-400 mr-2'/> 085881654988 / 085695952142</p>
+                </div>
+            </div>
+
+            <!-- Kolom 2: Link Artikel Blog Terkini -->
+            <div class='space-y-4'>
+                <h3 class='font-bold text-white text-sm uppercase tracking-wider'>Artikel Terkini</h3>
+                <ul class='space-y-2 text-xs text-green-200/85' id='footer-blog-list'>
+                    <!-- Dinonaktifkan atau diisi otomatis oleh JS -->
+                </ul>
+            </div>
+
+            <!-- Kolom 3: Google Maps Bisnis -->
+            <div class='space-y-4'>
+                <h3 class='font-bold text-white text-sm uppercase tracking-wider'>Lokasi Bisnis</h3>
+                <div class='rounded-lg overflow-hidden border border-green-800 shadow-lg h-36'>
+                    <iframe allowfullscreen='' height='100%' loading='lazy' referrerpolicy='no-referrer-when-downgrade' src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3963.456073836109!2d106.7865239!3d-6.5900593!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69c5cb1fa94065%3A0xe103be4cfb34d70a!2sCahya%20%26%20Embun%20Florist!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid' style='border:0;' width='100%'/>
+                </div>
+            </div>
+        </div>
+        <div class='bg-green-950 text-center py-4 border-t border-green-900/60 text-xs text-green-300'>
+            Copyright; 2026 - Cahya &amp; Embun Florist. All Rights Reserved.
+        </div>
+    </footer>
+
+    <!-- MODAL: DETAIL PRODUK -->
+    <div class='fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden' id='product-detail-modal'>
+        <div class='bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl relative animate-fade-in'>
+            <button class='absolute right-4 top-4 text-gray-400 hover:text-gray-700 bg-white/80 p-2 rounded-full shadow-sm z-10' onclick='closeProductDetailModal()'><i class='fa-solid fa-times text-lg'/></button>
+          <img alt='Detail' class='w-full h-56 object-cover' id='m-product-img' src=''/>
+            <div class='p-6 space-y-4'>
+                <div class='flex justify-between items-start'>
+                    <div>
+                        <span class='text-xs text-green-600 font-bold uppercase tracking-wider' id='m-product-cat'>Kategori</span>
+                        <h4 class='text-xl font-bold text-gray-800' id='m-product-name'>Nama Karangan Bunga</h4>
+                    </div>
+                    <span class='text-lg font-black text-green-700' id='m-product-price'>Rp 0</span>
+                </div>
+                <p class='text-gray-500 text-sm leading-relaxed' id='m-product-desc'>Deskripsi lengkap dari rangkaian karangan bunga yang dipilih.</p>
+                <div class='flex gap-2 pt-2'>
+                    <button class='flex-grow bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition flex items-center justify-center gap-2' id='btn-modal-add-cart'>
+                        <i class='fa-solid fa-cart-plus'/> Tambah Ke Keranjang
+                    </button>
+                    <button class='bg-emerald-500 hover:bg-emerald-600 text-white font-bold p-3 rounded-lg transition' id='btn-modal-wa'>
+                        <i class='fa-brands fa-whatsapp text-xl'/>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: KERANJANG BELANJA -->
+    <div class='fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden' id='cart-modal'>
+        <div class='bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-6 relative'>
+            <button class='absolute right-4 top-4 text-gray-400 hover:text-gray-700' onclick='closeCartModal()'><i class='fa-solid fa-times text-lg'/></button>
+            <h3 class='font-bold text-xl text-gray-800 flex items-center gap-2'><i class='fa-solid fa-shopping-basket text-green-600'/> Keranjang Bunga Anda</h3>
+            
+            <!-- List Items -->
+            <div class='space-y-3 max-h-60 overflow-y-auto pr-1' id='cart-items-container'>
+                <!-- Dinamis diisi via JS -->
+            </div>
+
+            <!-- Total Harga -->
+            <div class='flex justify-between items-center pt-4 border-t border-gray-100 font-bold'>
+                <span class='text-gray-500'>Subtotal:</span>
+                <span class='text-xl text-green-700' id='cart-total-price'>Rp 0</span>
+            </div>
+
+            <!-- Formulir Pemesanan Langsung -->
+            <div class='space-y-3'>
+                <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider'>Detail Pengiriman</h4>
+                <input class='w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500' id='order-name' placeholder='Nama Penerima' type='text'/>
+                <input class='w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500' id='order-phone' placeholder='Nomor Handphone / WA' type='text'/>
+                <textarea class='w-full border rounded-lg px-3 py-2 text-sm h-16 focus:outline-none focus:ring-1 focus:ring-green-500' id='order-address' placeholder='Alamat Lengkap Pengiriman di Bogor'/>
+                <textarea class='w-full border rounded-lg px-3 py-2 text-sm h-16 focus:outline-none focus:ring-1 focus:ring-green-500' id='order-card' placeholder='Isi Ucapan Kartu / Papan (Contoh: &apos;Selamat &amp; Sukses atas Pernikahan...&apos;)'/>
+            </div>
+
+            <button class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2' onclick='checkoutCart()'>
+                <i class='fa-brands fa-whatsapp'/> Pesan &amp; Kirim ke WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: TAMBAH / EDIT PRODUK ADMIN -->
+    <div class='fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden' id='admin-product-modal'>
+        <div class='bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 relative'>
+            <button class='absolute right-4 top-4 text-gray-400 hover:text-gray-700' onclick='closeAdminProductModal()'><i class='fa-solid fa-times text-lg'/></button>
+            <h3 class='font-bold text-lg text-gray-800' id='admin-product-modal-title'>Tambah Bunga Baru</h3>
+            <input id='ap-id' type='hidden'/>
+            <div class='space-y-3'>
+                <input class='w-full border rounded px-3 py-2 text-sm' id='ap-name' placeholder='Nama Bunga' type='text'/>
+                <select class='w-full border rounded px-3 py-2 text-sm' id='ap-category'>
+                    <!-- Kategori option di-render otomatis -->
+                </select>
+                <input class='w-full border rounded px-3 py-2 text-sm' id='ap-price' placeholder='Harga (Rupiah)' type='number'/>
+                <input class='w-full border rounded px-3 py-2 text-sm' id='ap-img' placeholder='URL Gambar Bunga' type='text'/>
+                <textarea class='w-full border rounded px-3 py-2 text-sm h-20' id='ap-desc' placeholder='Deskripsi Rangkaian Bunga'/>
+                <input class='w-full border rounded px-3 py-2 text-sm' id='ap-stock' placeholder='Stok Bunga' type='number'/>
+                <div class='flex items-center gap-2'>
+                  <input id='ap-best' type='checkbox'/>
+                    <label class='text-xs text-gray-600 font-semibold' for='ap-best'>Tandai sebagai Produk Terlaris</label>
+                </div>
+            </div>
+            <button class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg transition' onclick='saveAdminProduct()'>Simpan Produk</button>
+        </div>
+    </div>
+
+    <!-- MODAL: TAMBAH / EDIT BLOG ADMIN -->
+    <div class='fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden' id='admin-blog-modal'>
+        <div class='bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative'>
+            <button class='absolute right-4 top-4 text-gray-400 hover:text-gray-700' onclick='closeAdminBlogModal()'><i class='fa-solid fa-times text-lg'/></button>
+            <h3 class='font-bold text-lg text-gray-800' id='admin-blog-modal-title'>Buat Artikel Baru</h3>
+            <input id='ab-id' type='hidden'/>
+            <div class='space-y-3'>
+                <input class='w-full border rounded px-3 py-2 text-sm' id='ab-title' placeholder='Judul Artikel' type='text'/>
+                <input class='w-full border rounded px-3 py-2 text-sm' id='ab-excerpt' placeholder='Ringkasan Singkat' type='text'/>
+                <textarea class='w-full border rounded px-3 py-2 text-sm h-40' id='ab-content' placeholder='Konten Lengkap Artikel...'/>
+                <input class='w-full border rounded px-3 py-2 text-sm' id='ab-author' placeholder='Penulis' type='text'/>
+            </div>
+            <button class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg transition' onclick='saveAdminBlog()'>Terbitkan Artikel</button>
+        </div>
+    </div>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        // Memulai Inisialisasi saat Halaman Selesai Dimuat
+        window.onload = function() {
+            initApp();
+        };
+
+        function initApp() {
+            renderHeaderCategories();
+            renderBestSellers();
+            renderBerandaCategories();
+            renderKatalog();
+            renderBlogs();
+            renderFooterBlogs();
+            updateCartBadge();
+            renderAdminDashboard();
+        }
+
+        // Navigasi Section
+        function showSection(sectionId) {
+            document.querySelectorAll(&#39;main &gt; section&#39;).forEach(sec =&gt; {
+                sec.classList.remove(&#39;active-section&#39;);
+                sec.classList.add(&#39;hidden-section&#39;);
+            });
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.classList.remove(&#39;hidden-section&#39;);
+                target.classList.add(&#39;active-section&#39;);
+            }
+            window.scrollTo({ top: 0, behavior: &#39;smooth&#39; });
+        }
+
+        function scrollToProducts() {
+            showSection(&#39;produk&#39;);
+        }
+
+        // Format Rupiah
+        function formatRupiah(num) {
+            return &#39;Rp &#39; + Number(num).toLocaleString(&#39;id-ID&#39;);
+        }
+
+        // Render Navbar Kategori
+        function renderHeaderCategories() {
+            const dropdown = document.getElementById(&#39;nav-dropdown-categories&#39;);
+            let html = &quot;&quot;;
+            dbCategories.forEach(cat =&gt; {
+                html += `<button class='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700' onclick='filterKatalogByCategory(&apos;${cat}&apos;)'>${cat}</button>`;
+            });
+            dropdown.innerHTML = html;
+        }
+
+        // Render Slider Bunga Terlaris
+        function renderBestSellers() {
+            const container = document.getElementById(&#39;bestseller-slider&#39;);
+            const bests = dbProducts.filter(p =&gt; p.isBest);
+            let html = &quot;&quot;;
+            bests.forEach(p =&gt; {
+                html += `
+                <div class='min-w-[280px] md:min-w-[300px] bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden snap-start flex-shrink-0 hover:shadow-md transition'>
+                    <div class='relative h-48 overflow-hidden group'>
+                        <img alt='${p.name}' class='w-full h-full object-cover group-hover:scale-105 transition duration-300' src='${p.img}'/>
+                        <span class='absolute top-2 left-2 bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full'><i class='fa-solid fa-fire'/> Best Seller</span>
+                    </div>
+                    <div class='p-4 space-y-2'>
+                        <span class='text-[10px] font-bold text-green-600 uppercase tracking-wider'>${p.category}</span>
+                        <h3 class='font-bold text-gray-800 text-sm truncate'>${p.name}</h3>
+                        <p class='text-xs text-gray-400 line-clamp-2'>${p.desc}</p>
+                        <div class='flex justify-between items-center pt-2'>
+                            <span class='font-black text-sm text-green-700'>${formatRupiah(p.price)}</span>
+                            <button class='bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg transition' onclick='openProductDetailModal(&apos;${p.id}&apos;)'><i class='fa-solid fa-eye text-xs'/></button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // Scroll Slider Bunga Terlaris
+        function scrollBestSellers(direction) {
+            const slider = document.getElementById(&#39;bestseller-slider&#39;);
+            const amt = 320;
+            if (direction === &#39;left&#39;) {
+                slider.scrollLeft -= amt;
+            } else {
+                slider.scrollLeft += amt;
+            }
+        }
+
+        // Render Bagian Beranda Kategori
+        function renderBerandaCategories() {
+            const container = document.getElementById(&#39;kategori-beranda-section&#39;);
+            let html = &quot;&quot;;
+            dbCategories.forEach(cat =&gt; {
+                const prods = dbProducts.filter(p =&gt; p.category === cat).slice(0, 4);
+                if (prods.length === 0) return;
+                
+                html += `
+                <div class='space-y-4'>
+                    <div class='flex justify-between items-center'>
+                        <h3 class='text-xl font-bold text-gray-800 flex items-center gap-2'><span class='w-2.5 h-6 bg-green-600 rounded-full inline-block'/> ${cat}</h3>
+                        <button class='text-xs font-bold text-green-600 hover:underline' onclick='filterKatalogByCategory(&apos;${cat}&apos;)'>Lihat Semua (${dbProducts.filter(p =&gt; p.category === cat).length}) <i class='fa-solid fa-arrow-right'/></button>
+                    </div>
+                    <div class='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6'>`;
+                
+                prods.forEach(p =&gt; {
+                    html += `
+                    <div class='bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition'>
+                      <img alt='${p.name}' class='w-full h-40 object-cover' src='${p.img}'/>
+                        <div class='p-4 space-y-2'>
+                            <h4 class='font-bold text-sm text-gray-800 truncate'>${p.name}</h4>
+                            <span class='font-black text-xs text-green-700'>${formatRupiah(p.price)}</span>
+                            <div class='flex gap-2 pt-2'>
+                                <button class='flex-grow bg-gray-100 hover:bg-green-50 text-gray-600 hover:text-green-700 font-bold py-1.5 rounded text-[11px] transition' onclick='openProductDetailModal(&apos;${p.id}&apos;)'>Detail</button>
+                                <button class='bg-green-600 hover:bg-green-700 text-white px-2.5 rounded transition' onclick='addToCart(&apos;${p.id}&apos;)'><i class='fa-solid fa-cart-plus text-xs'/></button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // Render Katalog Filter
+        let selectedCategoryFilter = &quot;Semua&quot;;
+        function renderKatalog() {
+            const buttonsContainer = document.getElementById(&#39;katalog-filter-buttons&#39;);
+            let btnsHtml = `<button class='px-4 py-1.5 rounded-full text-xs font-bold transition ${selectedCategoryFilter === &apos;Semua&apos; ? &apos;bg-green-600 text-white&apos; : &apos;bg-gray-100 text-gray-600 hover:bg-gray-200&apos;}' onclick='setKatalogCategoryFilter(&apos;Semua&apos;)'>Semua</button>`;
+            dbCategories.forEach(cat =&gt; {
+                btnsHtml += `<button class='px-4 py-1.5 rounded-full text-xs font-bold transition ${selectedCategoryFilter === cat ? &apos;bg-green-600 text-white&apos; : &apos;bg-gray-100 text-gray-600 hover:bg-gray-200&apos;}' onclick='setKatalogCategoryFilter(&apos;${cat}&apos;)'>${cat}</button>`;
+            });
+            buttonsContainer.innerHTML = btnsHtml;
+
+            filterKatalog();
+        }
+
+        function setKatalogCategoryFilter(cat) {
+            selectedCategoryFilter = cat;
+            renderKatalog();
+        }
+
+        function filterKatalogByCategory(cat) {
+            selectedCategoryFilter = cat;
+            renderKatalog();
+            showSection(&#39;produk&#39;);
+        }
+
+        function filterKatalog() {
+            const searchVal = document.getElementById(&#39;katalog-search&#39;).value.toLowerCase();
+            const grid = document.getElementById(&#39;katalog-grid&#39;);
+            let filtered = dbProducts;
+
+            if (selectedCategoryFilter !== &quot;Semua&quot;) {
+                filtered = filtered.filter(p =&gt; p.category === selectedCategoryFilter);
+            }
+            if (searchVal.trim() !== &quot;&quot;) {
+                filtered = filtered.filter(p =&gt; p.name.toLowerCase().includes(searchVal));
+            }
+
+            let html = &quot;&quot;;
+            if (filtered.length === 0) {
+                html = `<div class='col-span-full text-center py-12 text-gray-400'>Tidak ada rangkaian bunga ditemukan.</div>`;
+            } else {
+                filtered.forEach(p =&gt; {
+                    html += `
+                    <div class='bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition'>
+                      <img alt='${p.name}' class='w-full h-44 object-cover' src='${p.img}'/>
+                        <div class='p-4 space-y-2'>
+                            <span class='text-[9px] font-bold text-green-600 uppercase tracking-widest'>${p.category}</span>
+                            <h4 class='font-bold text-sm text-gray-800 truncate'>${p.name}</h4>
+                            <p class='text-xs text-gray-400 line-clamp-2'>${p.desc}</p>
+                            <div class='flex justify-between items-center pt-2'>
+                                <span class='font-black text-sm text-green-700'>${formatRupiah(p.price)}</span>
+                                <div class='flex gap-1'>
+                                    <button class='bg-gray-100 hover:bg-green-50 text-gray-600 hover:text-green-700 p-2 rounded transition' onclick='openProductDetailModal(&apos;${p.id}&apos;)'><i class='fa-solid fa-eye text-xs'/></button>
+                                    <button class='bg-green-600 hover:bg-green-700 text-white p-2 rounded transition' onclick='addToCart(&apos;${p.id}&apos;)'><i class='fa-solid fa-cart-plus text-xs'/></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            }
+            grid.innerHTML = html;
+        }
+
+        // Render Blogs
+        function renderBlogs() {
+            const grid = document.getElementById(&#39;blog-grid&#39;);
+            let html = &quot;&quot;;
+            dbBlogs.forEach(b =&gt; {
+                html += `
+                <article class='bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-3'>
+                    <div class='flex justify-between items-center text-xs text-gray-400'>
+                        <span><i class='fa-solid fa-calendar mr-1'/> ${b.date}</span>
+                        <span><i class='fa-solid fa-user mr-1'/> ${b.author}</span>
+                    </div>
+                    <h3 class='font-bold text-lg text-gray-800 hover:text-green-700 transition cursor-pointer'>${b.title}</h3>
+                    <p class='text-gray-500 text-sm leading-relaxed'>${b.excerpt}</p>
+                    <div class='bg-gray-50 p-4 rounded-xl border border-gray-100 text-xs text-gray-600 leading-relaxed'>${b.content}</div>
+                </article>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        function renderFooterBlogs() {
+            const container = document.getElementById(&#39;footer-blog-list&#39;);
+            let html = &quot;&quot;;
+            dbBlogs.slice(0, 3).forEach(b =&gt; {
+                html += `
+                <li class='hover:text-green-400 transition cursor-pointer flex items-center gap-1'>
+                    <i class='fa-solid fa-chevron-right text-[10px]'/> ${b.title}
+                </li>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // MODAL DETAIL PRODUK SINKRONISASI
+        function openProductDetailModal(id) {
+            const p = dbProducts.find(item =&gt; item.id === id);
+            if (!p) return;
+
+            document.getElementById(&#39;m-product-img&#39;).src = p.img;
+            document.getElementById(&#39;m-product-cat&#39;).innerText = p.category;
+            document.getElementById(&#39;m-product-name&#39;).innerText = p.name;
+            document.getElementById(&#39;m-product-price&#39;).innerText = formatRupiah(p.price);
+            document.getElementById(&#39;m-product-desc&#39;).innerText = p.desc;
+
+            document.getElementById(&#39;btn-modal-add-cart&#39;).onclick = function() {
+                addToCart(p.id);
+                closeProductDetailModal();
+            };
+
+            document.getElementById(&#39;btn-modal-wa&#39;).onclick = function() {
+                const text = `Halo Cahya &amp; Embun Florist, saya tertarik memesan rangkaian bunga ini:\n\n*${p.name}* (${p.category})\nHarga: *${formatRupiah(p.price)}*\n\nApakah bunga ini tersedia?`;
+                window.open(`https://wa.me/6285881654988?text=${encodeURIComponent(text)}`, &#39;_blank&#39;);
+            };
+
+            document.getElementById(&#39;product-detail-modal&#39;).classList.remove(&#39;hidden&#39;);
+        }
+
+        function closeProductDetailModal() {
+            document.getElementById(&#39;product-detail-modal&#39;).classList.add(&#39;hidden&#39;);
+        }
+
+        // MODAL KERANJANG BELANJA
+        function openCartModal() {
+            renderCartItems();
+            document.getElementById(&#39;cart-modal&#39;).classList.remove(&#39;hidden&#39;);
+        }
+
+        function closeCartModal() {
+            document.getElementById(&#39;cart-modal&#39;).classList.add(&#39;hidden&#39;);
+        }
+
+        // SINKRONISASI KERANJANG (CART)
+        function addToCart(id) {
+            const p = dbProducts.find(item =&gt; item.id === id);
+            if (!p) return;
+
+            const existing = cart.find(item =&gt; item.productId === id);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ productId: id, name: p.name, price: p.price, qty: 1 });
+            }
+
+            updateCartBadge();
+            alert(`Berhasil menambahkan &quot;${p.name}&quot; ke keranjang!`);
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById(&#39;cart-badge&#39;);
+            const totalQty = cart.reduce((acc, item) =&gt; acc + item.qty, 0);
+            if (totalQty &gt; 0) {
+                badge.innerText = totalQty;
+                badge.classList.remove(&#39;hidden&#39;);
+            } else {
+                badge.classList.add(&#39;hidden&#39;);
+            }
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById(&#39;cart-items-container&#39;);
+            let html = &quot;&quot;;
+            let total = 0;
+
+            if (cart.length === 0) {
+                html = `<div class='text-center py-8 text-gray-400'>Keranjang belanja kosong.</div>`;
+            } else {
+                cart.forEach((item, index) =&gt; {
+                    const subtotal = item.price * item.qty;
+                    total += subtotal;
+                    html += `
+                    <div class='flex justify-between items-center border-b border-gray-100 pb-2'>
+                        <div class='space-y-0.5'>
+                            <h4 class='font-bold text-xs text-gray-800 truncate max-w-[200px]'>${item.name}</h4>
+                            <span class='text-xs text-green-700'>${formatRupiah(item.price)} x ${item.qty}</span>
+                        </div>
+                        <div class='flex items-center gap-2'>
+                            <button class='p-1 text-gray-400 hover:text-green-600' onclick='changeCartQty(${index}, -1)'><i class='fa-solid fa-minus'/></button>
+                            <button class='p-1 text-gray-400 hover:text-green-600' onclick='changeCartQty(${index}, 1)'><i class='fa-solid fa-plus'/></button>
+                            <button class='p-1 text-red-400 hover:text-red-600 ml-2' onclick='changeCartQty(${index}, -99)'><i class='fa-solid fa-trash-can'/></button>
+                        </div>
+                    </div>`;
+                });
+            }
+
+            container.innerHTML = html;
+            document.getElementById(&#39;cart-total-price&#39;).innerText = formatRupiah(total);
+        }
+
+        function changeCartQty(index, amt) {
+            cart[index].qty += amt;
+            if (cart[index].qty &lt;= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        // Checkout &amp; Pengiriman WhatsApp
+        function checkoutCart() {
+            if (cart.length === 0) {
+                alert(&quot;Keranjang masih kosong!&quot;);
+                return;
+            }
+
+            const name = document.getElementById(&#39;order-name&#39;).value;
+            const phone = document.getElementById(&#39;order-phone&#39;).value;
+            const address = document.getElementById(&#39;order-address&#39;).value;
+            const card = document.getElementById(&#39;order-card&#39;).value;
+
+            if (!name || !phone || !address) {
+                alert(&quot;Mohon isi Nama, No WA, dan Alamat Pengiriman!&quot;);
+                return;
+            }
+
+            // Hitung Total
+            let total = 0;
+            let productListText = &quot;&quot;;
+            cart.forEach(item =&gt; {
+                const subtotal = item.price * item.qty;
+                total += subtotal;
+                productListText += `- ${item.name} (${item.qty}x) -&gt; ${formatRupiah(subtotal)}\n`;
+            });
+
+            const txId = &quot;TX-&quot; + Math.floor(1000 + Math.random() * 9000);
+
+            // Logika Simpan Transaksi (Dummy/GAS)
+            const salesRecord = {
+                id: txId,
+                user: name,
+                items: cart.map(i =&gt; `${i.name} (${i.qty})`).join(&#39;, &#39;),
+                total: total,
+                date: new Date().toISOString().split(&#39;T&#39;)[0],
+                status: &quot;Pending&quot;
+            };
+
+            dbSales.push(salesRecord);
+
+            // Susun Pesan WhatsApp
+            const message = `*PESANAN BUNGA BARU - CAHYA &amp; EMBUN FLORIST*\n` +
+                            `------------------------------------------\n` +
+                            `ID Transaksi: *${txId}*\n` +
+                            `Nama Pemesan: *${name}*\n` +
+                            `No. HP/WA: *${phone}*\n` +
+                            `Alamat Kirim: *${address}*\n` +
+                            `Isi Ucapan Papan/Kartu: _&quot;${card || &#39;Tidak ada&#39;}&quot;_\n\n` +
+                            `*Rincian Pesanan:*\n${productListText}` +
+                            `------------------------------------------\n` +
+                            `*Total Bayar: ${formatRupiah(total)}*\n\n` +
+                            `Silakan kirimkan instruksi pembayaran &amp; konfirmasi pengiriman. Terima kasih!`;
+
+            // Reset Keranjang &amp; Form
+            cart = [];
+            updateCartBadge();
+            document.getElementById(&#39;order-name&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;order-phone&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;order-address&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;order-card&#39;).value = &quot;&quot;;
+            closeCartModal();
+
+            // Panggil API Backend GAS jika diaktifkan
+            if (!IS_PREVIEW) {
+                google.script.run.withSuccessHandler(() =&gt; {
+                    renderAdminDashboard();
+                }).addSale(salesRecord);
+            } else {
+                renderAdminDashboard();
+            }
+
+            window.open(`https://wa.me/6285881654988?text=${encodeURIComponent(message)}`, &#39;_blank&#39;);
+        }
+
+        // MANAJEMEN OTENTIKASI &amp; LOGOUT
+        function handleLogin() {
+            const user = document.getElementById(&#39;login-username&#39;).value;
+            const pass = document.getElementById(&#39;login-password&#39;).value;
+
+            if (IS_PREVIEW) {
+                // Mode Preview: Sesuai instruksi konfigurasi dummy
+                if (user === &quot;admin&quot; &amp;&amp; pass === &quot;edudigital&quot;) {
+                    currentRole = &quot;Admin&quot;;
+                    currentUser = { username: &quot;admin&quot;, name: &quot;Pengelola Toko&quot; };
+                    showSection(&#39;dashboard-admin&#39;);
+                    updateAuthUI();
+                } else if (user === &quot;peserta&quot; &amp;&amp; pass === &quot;edudigital&quot;) {
+                    currentRole = &quot;Peserta&quot;;
+                    currentUser = { username: &quot;peserta&quot;, name: &quot;Rian Wijaya&quot; };
+                    document.getElementById(&#39;welcome-customer-name&#39;).innerText = `Halo, ${currentUser.name}!`;
+                    showSection(&#39;dashboard-pelanggan&#39;);
+                    renderCustomerOrders();
+                    updateAuthUI();
+                } else {
+                    alert(&quot;Gagal Masuk! Username atau Password salah.&quot;);
+                }
+            } else {
+                // Mode Live Blogger (Memanggil Google Apps Script)
+                google.script.run.withSuccessHandler(res =&gt; {
+                    if (res.success) {
+                        currentRole = res.role;
+                        currentUser = { username: user, name: res.name };
+                        if (currentRole === &quot;Admin&quot;) {
+                            showSection(&#39;dashboard-admin&#39;);
+                            renderAdminDashboard();
+                        } else {
+                            document.getElementById(&#39;welcome-customer-name&#39;).innerText = `Halo, ${res.name}!`;
+                            showSection(&#39;dashboard-pelanggan&#39;);
+                            renderCustomerOrders();
+                        }
+                        updateAuthUI();
+                    } else {
+                        alert(&quot;Gagal Masuk! Detail login tidak valid.&quot;);
+                    }
+                }).verifyLogin(user, pass);
+            }
+        }
+
+        function handleLogout() {
+            currentRole = &quot;Guest&quot;;
+            currentUser = null;
+            updateAuthUI();
+            showSection(&#39;beranda&#39;);
+        }
+
+        function updateAuthUI() {
+            const container = document.getElementById(&#39;auth-actions-container&#39;);
+            if (currentRole === &quot;Guest&quot;) {
+                container.innerHTML = `
+                <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick='showSection(&apos;login-section&apos;)'>
+                    <i class='fa-solid fa-sign-in-alt'/> Login
+                </button>`;
+            } else {
+                const dest = currentRole === &quot;Admin&quot; ? &#39;dashboard-admin&#39; : &#39;dashboard-pelanggan&#39;;
+                container.innerHTML = `
+                <div class='flex items-center gap-2'>
+                    <button class='bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1' onclick='showSection(&apos;${dest}&apos;)'>
+                        <i class='fa-solid fa-user-circle'/> Panel Anda
+                    </button>
+                    <button class='bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition' onclick='handleLogout()'><i class='fa-solid fa-power-off text-xs'/></button>
+                </div>`;
+            }
+        }
+
+        function renderCustomerOrders() {
+            const tbody = document.getElementById(&#39;customer-orders-tbody&#39;);
+            if (!currentUser) return;
+            const orders = dbSales.filter(s =&gt; s.user.toLowerCase().includes(currentUser.name.toLowerCase()));
+            let html = &quot;&quot;;
+            if (orders.length === 0) {
+                html = `<tr><td class='p-3 text-center text-gray-400' colspan='5'>Belum ada transaksi terdaftar.</td></tr>`;
+            } else {
+                orders.forEach(o =&gt; {
+                    const stColor = o.status === &quot;Selesai&quot; ? &quot;bg-green-100 text-green-800&quot; : &quot;bg-amber-100 text-amber-800&quot;;
+                    html += `
+                    <tr class='border-b border-gray-100'>
+                        <td class='p-3 font-mono font-bold'>${o.id}</td>
+                        <td class='p-3'>${o.items}</td>
+                        <td class='p-3 font-semibold'>${formatRupiah(o.total)}</td>
+                        <td class='p-3'>${o.date}</td>
+                        <td class='p-3'><span class='px-2 py-0.5 rounded text-xs font-bold ${stColor}'>${o.status}</span></td>
+                    </tr>`;
+                });
+            }
+            tbody.innerHTML = html;
+        }
+
+        // ADMIN DASHBOARD TABS &amp; CONTROL LOGIC
+        function switchAdminTab(tabId) {
+            document.querySelectorAll(&#39;.admin-tab-content&#39;).forEach(c =&gt; c.classList.add(&#39;hidden&#39;));
+            document.getElementById(`admin-${tabId}`).classList.remove(&#39;hidden&#39;);
+
+            document.querySelectorAll(&#39;[id^=&quot;tab-p-&quot;]&#39;).forEach(b =&gt; {
+                b.classList.remove(&#39;border-green-600&#39;, &#39;text-green-700&#39;, &#39;bg-white&#39;);
+                b.classList.add(&#39;border-transparent&#39;);
+            });
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.remove(&#39;border-transparent&#39;);
+            activeBtn.classList.add(&#39;border-green-600&#39;, &#39;text-green-700&#39;, &#39;bg-white&#39;);
+        }
+
+        let myChartInstance = null;
+        function renderAdminDashboard() {
+            // Update Stat Cards
+            const totalRevenue = dbSales.reduce((acc, item) =&gt; acc + item.total, 0);
+            document.getElementById(&#39;stat-total-revenue&#39;).innerText = formatRupiah(totalRevenue);
+            document.getElementById(&#39;stat-total-orders&#39;).innerText = dbSales.length;
+            document.getElementById(&#39;stat-total-categories&#39;).innerText = dbCategories.length;
+
+            // Render Table Data
+            renderAdminProducts();
+            renderAdminCategories();
+            renderAdminBlogs();
+            renderAdminSales();
+
+            // Render ChartJS
+            const ctx = document.getElementById(&#39;chartPenjualan&#39;).getContext(&#39;2d&#39;);
+            if (myChartInstance) {
+                myChartInstance.destroy();
+            }
+            myChartInstance = new Chart(ctx, {
+                type: &#39;line&#39;,
+                data: {
+                    labels: [&#39;Jan&#39;, &#39;Feb&#39;, &#39;Mar&#39;, &#39;Apr&#39;, &#39;Mei&#39;, &#39;Jun&#39;],
+                    datasets: [{
+                        label: &#39;Pendapatan Toko Bunga (Rupiah)&#39;,
+                        data: [1500000, 2000000, 1800000, 3100000, 2500000, totalRevenue],
+                        borderColor: &#39;#059669&#39;,
+                        backgroundColor: &#39;rgba(5, 150, 105, 0.1)&#39;,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderAdminProducts() {
+            const tbody = document.getElementById(&#39;admin-produk-tbody&#39;);
+            let html = &quot;&quot;;
+            dbProducts.forEach(p =&gt; {
+                html += `
+                <tr class='border-b border-gray-100'>
+                    <td class='p-3'><img alt='${p.name}' class='w-10 h-10 object-cover rounded' src='${p.img}'/></td>
+                    <td class='p-3 font-semibold'>${p.name}</td>
+                    <td class='p-3'>${p.category}</td>
+                    <td class='p-3 font-bold'>${formatRupiah(p.price)}</td>
+                    <td class='p-3'>${p.stock}</td>
+                    <td class='p-3'>${p.isBest ? &#39;&#11088; Ya&#39; : &#39;Tidak&#39;}</td>
+                    <td class='p-3 space-x-2'>
+                        <button class='bg-blue-50 text-blue-600 px-2.5 py-1 rounded hover:bg-blue-100 transition' onclick='openEditProductModal(&apos;${p.id}&apos;)'><i class='fa-solid fa-edit'/></button>
+                        <button class='bg-red-50 text-red-600 px-2.5 py-1 rounded hover:bg-red-100 transition' onclick='deleteProduct(&apos;${p.id}&apos;)'><i class='fa-solid fa-trash'/></button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // CRUD PRODUK
+        function openAddProductModal() {
+            document.getElementById(&#39;admin-product-modal-title&#39;).innerText = &quot;Tambah Bunga Baru&quot;;
+            document.getElementById(&#39;ap-id&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ap-name&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ap-price&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ap-img&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ap-desc&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ap-stock&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ap-best&#39;).checked = false;
+
+            // Render Select Options
+            const sel = document.getElementById(&#39;ap-category&#39;);
+            sel.innerHTML = dbCategories.map(c =&gt; `<option value='${c}'>${c}</option>`).join(&#39;&#39;);
+
+            document.getElementById(&#39;admin-product-modal&#39;).classList.remove(&#39;hidden&#39;);
+        }
+
+        function openEditProductModal(id) {
+            const p = dbProducts.find(item =&gt; item.id === id);
+            if (!p) return;
+
+            document.getElementById(&#39;admin-product-modal-title&#39;).innerText = &quot;Edit Detail Bunga&quot;;
+            document.getElementById(&#39;ap-id&#39;).value = p.id;
+            document.getElementById(&#39;ap-name&#39;).value = p.name;
+            document.getElementById(&#39;ap-price&#39;).value = p.price;
+            document.getElementById(&#39;ap-img&#39;).value = p.img;
+            document.getElementById(&#39;ap-desc&#39;).value = p.desc;
+            document.getElementById(&#39;ap-stock&#39;).value = p.stock;
+            document.getElementById(&#39;ap-best&#39;).checked = p.isBest;
+
+            const sel = document.getElementById(&#39;ap-category&#39;);
+            sel.innerHTML = dbCategories.map(c =&gt; `<option> value=&quot;${c}&quot; ${c === p.category ? &#39;selected&#39; : &#39;&#39;}&gt;${c}</option>`).join(&#39;&#39;);
+
+            document.getElementById(&#39;admin-product-modal&#39;).classList.remove(&#39;hidden&#39;);
+        }
+
+        function closeAdminProductModal() {
+            document.getElementById(&#39;admin-product-modal&#39;).classList.add(&#39;hidden&#39;);
+        }
+
+        function saveAdminProduct() {
+            const id = document.getElementById(&#39;ap-id&#39;).value;
+            const name = document.getElementById(&#39;ap-name&#39;).value;
+            const cat = document.getElementById(&#39;ap-category&#39;).value;
+            const price = Number(document.getElementById(&#39;ap-price&#39;).value);
+            const img = document.getElementById(&#39;ap-img&#39;).value || &quot;https://placehold.co/600x400/10b981/ffffff?text=Cahya+Embun&quot;;
+            const desc = document.getElementById(&#39;ap-desc&#39;).value;
+            const stock = Number(document.getElementById(&#39;ap-stock&#39;).value);
+            const isBest = document.getElementById(&#39;ap-best&#39;).checked;
+
+            if (!name || !price || !desc) {
+                alert(&quot;Mohon isi nama, harga, dan deskripsi produk!&quot;);
+                return;
+            }
+
+            if (id) {
+                // Edit
+                const pIndex = dbProducts.findIndex(p =&gt; p.id === id);
+                dbProducts[pIndex] = { id, name, category: cat, price, img, desc, stock, isBest };
+            } else {
+                // Tambah Baru
+                const newId = &quot;P&quot; + String(dbProducts.length + 1).padStart(3, &#39;0&#39;);
+                dbProducts.push({ id: newId, name, category: cat, price, img, desc, stock, isBest });
+            }
+
+            initApp();
+            closeAdminProductModal();
+        }
+
+        function deleteProduct(id) {
+            if (confirm(&quot;Apakah Anda yakin ingin menghapus produk bunga ini?&quot;)) {
+                dbProducts = dbProducts.filter(p =&gt; p.id !== id);
+                initApp();
+            }
+        }
+
+        // CRUD KATEGORI
+        function renderAdminCategories() {
+            const tbody = document.getElementById(&#39;admin-kategori-tbody&#39;);
+            let html = &quot;&quot;;
+            dbCategories.forEach((c, index) =&gt; {
+                html += `
+                <tr class='border-b border-gray-100'>
+                    <td class='p-3 font-semibold'>${c}</td>
+                    <td class='p-3'>
+                        <button class='bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition text-[10px]' onclick='deleteCategory(${index})'>Hapus</button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function handleAddCategory() {
+            const val = document.getElementById(&#39;input-kategori-baru&#39;).value;
+            if (!val) return;
+            dbCategories.push(val);
+            document.getElementById(&#39;input-kategori-baru&#39;).value = &quot;&quot;;
+            initApp();
+        }
+
+        function deleteCategory(index) {
+            if (confirm(&quot;Menghapus kategori akan berdampak pada navigasi. Tetap hapus?&quot;)) {
+                dbCategories.splice(index, 1);
+                initApp();
+            }
+        }
+
+        // CRUD BLOGS
+        function renderAdminBlogs() {
+            const tbody = document.getElementById(&#39;admin-blogs-tbody&#39;);
+            let html = &quot;&quot;;
+            dbBlogs.forEach(b =&gt; {
+                html += `
+                <tr class='border-b border-gray-100'>
+                    <td class='p-3 font-semibold'>${b.title}</td>
+                    <td class='p-3'>${b.author}</td>
+                    <td class='p-3'>${b.date}</td>
+                    <td class='p-3 space-x-2'>
+                        <button class='bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition' onclick='openEditBlogModal(&apos;${b.id}&apos;)'><i class='fa-solid fa-edit'/></button>
+                        <button class='bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition' onclick='deleteBlog(&apos;${b.id}&apos;)'><i class='fa-solid fa-trash'/></button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function openAddBlogModal() {
+            document.getElementById(&#39;admin-blog-modal-title&#39;).innerText = &quot;Buat Artikel Baru&quot;;
+            document.getElementById(&#39;ab-id&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ab-title&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ab-excerpt&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ab-content&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;ab-author&#39;).value = &quot;&quot;;
+            document.getElementById(&#39;admin-blog-modal&#39;).classList.remove(&#39;hidden&#39;);
+        }
+
+        function openEditBlogModal(id) {
+            const b = dbBlogs.find(item =&gt; item.id === id);
+            if (!b) return;
+
+            document.getElementById(&#39;admin-blog-modal-title&#39;).innerText = &quot;Edit Artikel&quot;;
+            document.getElementById(&#39;ab-id&#39;).value = b.id;
+            document.getElementById(&#39;ab-title&#39;).value = b.title;
+            document.getElementById(&#39;ab-excerpt&#39;).value = b.excerpt;
+            document.getElementById(&#39;ab-content&#39;).value = b.content;
+            document.getElementById(&#39;ab-author&#39;).value = b.author;
+            document.getElementById(&#39;admin-blog-modal&#39;).classList.remove(&#39;hidden&#39;);
+        }
+
+        function closeAdminBlogModal() {
+            document.getElementById(&#39;admin-blog-modal&#39;).classList.add(&#39;hidden&#39;);
+        }
+
+        function saveAdminBlog() {
+            const id = document.getElementById(&#39;ab-id&#39;).value;
+            const title = document.getElementById(&#39;ab-title&#39;).value;
+            const excerpt = document.getElementById(&#39;ab-excerpt&#39;).value;
+            const content = document.getElementById(&#39;ab-content&#39;).value;
+            const author = document.getElementById(&#39;ab-author&#39;).value || &quot;Admin Florist&quot;;
+
+            if (!title || !content) {
+                alert(&quot;Mohon isi judul dan konten artikel!&quot;);
+                return;
+            }
+
+            if (id) {
+                const bIndex = dbBlogs.findIndex(b =&gt; b.id === id);
+                dbBlogs[bIndex] = { id, title, excerpt, content, date: new Date().toISOString().split(&#39;T&#39;)[0], author };
+            } else {
+                const newId = &quot;B&quot; + String(dbBlogs.length + 1).padStart(3, &#39;0&#39;);
+                dbBlogs.push({ id: newId, title, excerpt, content, date: new Date().toISOString().split(&#39;T&#39;)[0], author });
+            }
+
+            initApp();
+            closeAdminBlogModal();
+        }
+
+        function deleteBlog(id) {
+            if (confirm(&quot;Apakah Anda yakin ingin menghapus artikel ini?&quot;)) {
+                dbBlogs = dbBlogs.filter(b =&gt; b.id !== id);
+                initApp();
+            }
+        }
+
+        // PENJUALAN STATUS MANAGEMENT
+        function renderAdminSales() {
+            const tbody = document.getElementById(&#39;admin-penjualan-tbody&#39;);
+            let html = &quot;&quot;;
+            dbSales.forEach(s =&gt; {
+                const badgeClass = s.status === &quot;Selesai&quot; ? &quot;bg-green-100 text-green-800&quot; : &quot;bg-amber-100 text-amber-800&quot;;
+                html += `
+                <tr class='border-b border-gray-100'>
+                    <td class='p-3 font-mono font-bold'>${s.id}</td>
+                    <td class='p-3'>${s.user}</td>
+                    <td class='p-3 max-w-xs truncate'>${s.items}</td>
+                    <td class='p-3 font-bold'>${formatRupiah(s.total)}</td>
+                    <td class='p-3'><span class='px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}'>${s.status}</span></td>
+                    <td class='p-3 space-x-2'>
+                        <button class='bg-green-50 text-green-700 px-2 py-1 rounded hover:bg-green-100 transition text-[10px] font-bold' onclick='toggleSaleStatus(&apos;${s.id}&apos;)'>Proses / Selesai</button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function toggleSaleStatus(id) {
+            const sale = dbSales.find(s =&gt; s.id === id);
+            if (!sale) return;
+            sale.status = sale.status === &quot;Pending&quot; ? &quot;Selesai&quot; : &quot;Pending&quot;;
+            renderAdminDashboard();
+        }
+    </script>
+<b:section class='main' id='main' showaddelement='yes'/>
+</body>
+</html>
