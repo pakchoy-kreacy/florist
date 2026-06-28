@@ -3,16 +3,16 @@
 <head>
     <meta charset='UTF-8'>
     <meta content='width=device-width, initial-scale=1.0' name='viewport'>
-    <title>Cahya & Embun Florist - Toko Bunga Bogor</title>
+    <title>Cahya &amp; Embun Florist - Toko Bunga Bogor</title>
     <!-- Tailwind CSS & Font Inter -->
     <script src='https://cdn.tailwindcss.com'></script>
-    <link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap' rel='stylesheet'/>
+    <link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap' rel='stylesheet'/>
     <!-- FontAwesome & Phosphor Icons -->
     <link href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet'/>
     <!-- ChartJS untuk Dashboard Admin -->
     <script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
     
-    <style>
+    
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -36,12 +36,12 @@
             padding: 0;
             min-height: 100vh;
         }
-    </style>
+    </script>
 <!-- Template styles -->
 </head>
 <body class='bg-gray-50 text-gray-800 flex flex-col min-h-screen'>
 
-    <script>
+    
         // KONFIGURASI APLIKASI
         // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER
         const IS_PREVIEW = true; 
@@ -621,7 +621,7 @@
     </div>
 
     <!-- LOGIC SCRIPT -->
-    <script>
+    
         // Memulai Inisialisasi saat Halaman Selesai Dimuat
         window.onload = function() {
             initApp();
@@ -640,7 +640,7 @@
 
         // Navigasi Section
         function showSection(sectionId) {
-            document.querySelectorAll('main > section').forEach(sec => {
+            document.querySelectorAll('main &gt; section').forEach(sec =&gt; {
                 sec.classList.remove('active-section');
                 sec.classList.add('hidden-section');
             });
@@ -665,7 +665,7 @@
         function renderHeaderCategories() {
             const dropdown = document.getElementById('nav-dropdown-categories');
             let html = "";
-            dbCategories.forEach(cat => {
+            dbCategories.forEach(cat =&gt; {
                 html += `<button class='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700' onclick='filterKatalogByCategory('${cat}')'>${cat}</button>`;
             });
             dropdown.innerHTML = html;
@@ -674,9 +674,9 @@
         // Render Slider Bunga Terlaris
         function renderBestSellers() {
             const container = document.getElementById('bestseller-slider');
-            const bests = dbProducts.filter(p => p.isBest);
+            const bests = dbProducts.filter(p =&gt; p.isBest);
             let html = "";
-            bests.forEach(p => {
+            bests.forEach(p =&gt; {
                 html += `
                 <div class='min-w-[280px] md:min-w-[300px] bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden snap-start flex-shrink-0 hover:shadow-md transition'>
                     <div class='relative h-48 overflow-hidden group'>
@@ -712,19 +712,19 @@
         function renderBerandaCategories() {
             const container = document.getElementById('kategori-beranda-section');
             let html = "";
-            dbCategories.forEach(cat => {
-                const prods = dbProducts.filter(p => p.category === cat).slice(0, 4);
+            dbCategories.forEach(cat =&gt; {
+                const prods = dbProducts.filter(p =&gt; p.category === cat).slice(0, 4);
                 if (prods.length === 0) return;
                 
                 html += `
                 <div class='space-y-4'>
                     <div class='flex justify-between items-center'>
                         <h3 class='text-xl font-bold text-gray-800 flex items-center gap-2'><span class='w-2.5 h-6 bg-green-600 rounded-full inline-block'/> ${cat}</h3>
-                        <button class='text-xs font-bold text-green-600 hover:underline' onclick='filterKatalogByCategory('${cat}')'>Lihat Semua (${dbProducts.filter(p => p.category === cat).length}) <i class='fa-solid fa-arrow-right'/></button>
+                        <button class='text-xs font-bold text-green-600 hover:underline' onclick='filterKatalogByCategory('${cat}')'>Lihat Semua (${dbProducts.filter(p =&gt; p.category === cat).length}) <i class='fa-solid fa-arrow-right'/></button>
                     </div>
                     <div class='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6'>`;
                 
-                prods.forEach(p => {
+                prods.forEach(p =&gt; {
                     html += `
                     <div class='bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition'>
                       <img alt='${p.name}' class='w-full h-40 object-cover' src='${p.img}'/>
@@ -749,7 +749,7 @@
         function renderKatalog() {
             const buttonsContainer = document.getElementById('katalog-filter-buttons');
             let btnsHtml = `<button class='px-4 py-1.5 rounded-full text-xs font-bold transition ${selectedCategoryFilter === 'Semua' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}' onclick='setKatalogCategoryFilter('Semua')'>Semua</button>`;
-            dbCategories.forEach(cat => {
+            dbCategories.forEach(cat =&gt; {
                 btnsHtml += `<button class='px-4 py-1.5 rounded-full text-xs font-bold transition ${selectedCategoryFilter === cat ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}' onclick='setKatalogCategoryFilter('${cat}')'>${cat}</button>`;
             });
             buttonsContainer.innerHTML = btnsHtml;
@@ -774,17 +774,17 @@
             let filtered = dbProducts;
 
             if (selectedCategoryFilter !== "Semua") {
-                filtered = filtered.filter(p => p.category === selectedCategoryFilter);
+                filtered = filtered.filter(p =&gt; p.category === selectedCategoryFilter);
             }
             if (searchVal.trim() !== "") {
-                filtered = filtered.filter(p => p.name.toLowerCase().includes(searchVal));
+                filtered = filtered.filter(p =&gt; p.name.toLowerCase().includes(searchVal));
             }
 
             let html = "";
             if (filtered.length === 0) {
                 html = `<div class='col-span-full text-center py-12 text-gray-400'>Tidak ada rangkaian bunga ditemukan.</div>`;
             } else {
-                filtered.forEach(p => {
+                filtered.forEach(p =&gt; {
                     html += `
                     <div class='bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition'>
                       <img alt='${p.name}' class='w-full h-44 object-cover' src='${p.img}'/>
@@ -810,7 +810,7 @@
         function renderBlogs() {
             const grid = document.getElementById('blog-grid');
             let html = "";
-            dbBlogs.forEach(b => {
+            dbBlogs.forEach(b =&gt; {
                 html += `
                 <article class='bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-3'>
                     <div class='flex justify-between items-center text-xs text-gray-400'>
@@ -828,7 +828,7 @@
         function renderFooterBlogs() {
             const container = document.getElementById('footer-blog-list');
             let html = "";
-            dbBlogs.slice(0, 3).forEach(b => {
+            dbBlogs.slice(0, 3).forEach(b =&gt; {
                 html += `
                 <li class='hover:text-green-400 transition cursor-pointer flex items-center gap-1'>
                     <i class='fa-solid fa-chevron-right text-[10px]'/> ${b.title}
@@ -839,7 +839,7 @@
 
         // MODAL DETAIL PRODUK SINKRONISASI
         function openProductDetailModal(id) {
-            const p = dbProducts.find(item => item.id === id);
+            const p = dbProducts.find(item =&gt; item.id === id);
             if (!p) return;
 
             document.getElementById('m-product-img').src = p.img;
@@ -877,10 +877,10 @@
 
         // SINKRONISASI KERANJANG (CART)
         function addToCart(id) {
-            const p = dbProducts.find(item => item.id === id);
+            const p = dbProducts.find(item =&gt; item.id === id);
             if (!p) return;
 
-            const existing = cart.find(item => item.productId === id);
+            const existing = cart.find(item =&gt; item.productId === id);
             if (existing) {
                 existing.qty += 1;
             } else {
@@ -893,8 +893,8 @@
 
         function updateCartBadge() {
             const badge = document.getElementById('cart-badge');
-            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
-            if (totalQty > 0) {
+            const totalQty = cart.reduce((acc, item) =&gt; acc + item.qty, 0);
+            if (totalQty &gt; 0) {
                 badge.innerText = totalQty;
                 badge.classList.remove('hidden');
             } else {
@@ -910,7 +910,7 @@
             if (cart.length === 0) {
                 html = `<div class='text-center py-8 text-gray-400'>Keranjang belanja kosong.</div>`;
             } else {
-                cart.forEach((item, index) => {
+                cart.forEach((item, index) =&gt; {
                     const subtotal = item.price * item.qty;
                     total += subtotal;
                     html += `
@@ -934,7 +934,7 @@
 
         function changeCartQty(index, amt) {
             cart[index].qty += amt;
-            if (cart[index].qty <= 0) {
+            if (cart[index].qty &lt;= 0) {
                 cart.splice(index, 1);
             }
             updateCartBadge();
@@ -961,10 +961,10 @@
             // Hitung Total
             let total = 0;
             let productListText = "";
-            cart.forEach(item => {
+            cart.forEach(item =&gt; {
                 const subtotal = item.price * item.qty;
                 total += subtotal;
-                productListText += `- ${item.name} (${item.qty}x) -> ${formatRupiah(subtotal)}\n`;
+                productListText += `- ${item.name} (${item.qty}x) -&gt; ${formatRupiah(subtotal)}\n`;
             });
 
             const txId = "TX-" + Math.floor(1000 + Math.random() * 9000);
@@ -973,7 +973,7 @@
             const salesRecord = {
                 id: txId,
                 user: name,
-                items: cart.map(i => `${i.name} (${i.qty})`).join(', '),
+                items: cart.map(i =&gt; `${i.name} (${i.qty})`).join(', '),
                 total: total,
                 date: new Date().toISOString().split('T')[0],
                 status: "Pending"
@@ -1005,7 +1005,7 @@
 
             // Panggil API Backend GAS jika diaktifkan
             if (!IS_PREVIEW) {
-                google.script.run.withSuccessHandler(() => {
+                google.script.run.withSuccessHandler(() =&gt; {
                     renderAdminDashboard();
                 }).addSale(salesRecord);
             } else {
@@ -1039,7 +1039,7 @@
                 }
             } else {
                 // Mode Live Blogger (Memanggil Google Apps Script)
-                google.script.run.withSuccessHandler(res => {
+                google.script.run.withSuccessHandler(res =&gt; {
                     if (res.success) {
                         currentRole = res.role;
                         currentUser = { username: user, name: res.name };
@@ -1088,12 +1088,12 @@
         function renderCustomerOrders() {
             const tbody = document.getElementById('customer-orders-tbody');
             if (!currentUser) return;
-            const orders = dbSales.filter(s => s.user.toLowerCase().includes(currentUser.name.toLowerCase()));
+            const orders = dbSales.filter(s =&gt; s.user.toLowerCase().includes(currentUser.name.toLowerCase()));
             let html = "";
             if (orders.length === 0) {
                 html = `<tr><td class='p-3 text-center text-gray-400' colspan='5'>Belum ada transaksi terdaftar.</td></tr>`;
             } else {
-                orders.forEach(o => {
+                orders.forEach(o =&gt; {
                     const stColor = o.status === "Selesai" ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800";
                     html += `
                     <tr class='border-b border-gray-100'>
@@ -1110,10 +1110,10 @@
 
         // ADMIN DASHBOARD TABS & CONTROL LOGIC
         function switchAdminTab(tabId) {
-            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.admin-tab-content').forEach(c =&gt; c.classList.add('hidden'));
             document.getElementById(`admin-${tabId}`).classList.remove('hidden');
 
-            document.querySelectorAll('[id^="tab-p-"]').forEach(b => {
+            document.querySelectorAll('[id^="tab-p-"]').forEach(b =&gt; {
                 b.classList.remove('border-green-600', 'text-green-700', 'bg-white');
                 b.classList.add('border-transparent');
             });
@@ -1125,7 +1125,7 @@
         let myChartInstance = null;
         function renderAdminDashboard() {
             // Update Stat Cards
-            const totalRevenue = dbSales.reduce((acc, item) => acc + item.total, 0);
+            const totalRevenue = dbSales.reduce((acc, item) =&gt; acc + item.total, 0);
             document.getElementById('stat-total-revenue').innerText = formatRupiah(totalRevenue);
             document.getElementById('stat-total-orders').innerText = dbSales.length;
             document.getElementById('stat-total-categories').innerText = dbCategories.length;
@@ -1168,7 +1168,7 @@
         function renderAdminProducts() {
             const tbody = document.getElementById('admin-produk-tbody');
             let html = "";
-            dbProducts.forEach(p => {
+            dbProducts.forEach(p =&gt; {
                 html += `
                 <tr class='border-b border-gray-100'>
                     <td class='p-3'><img alt='${p.name}' class='w-10 h-10 object-cover rounded' src='${p.img}'/></td>
@@ -1199,13 +1199,13 @@
 
             // Render Select Options
             const sel = document.getElementById('ap-category');
-            sel.innerHTML = dbCategories.map(c => `<option value='${c}'>${c}</option>`).join('');
+            sel.innerHTML = dbCategories.map(c =&gt; `<option value='${c}'>${c}</option>`).join('');
 
             document.getElementById('admin-product-modal').classList.remove('hidden');
         }
 
         function openEditProductModal(id) {
-            const p = dbProducts.find(item => item.id === id);
+            const p = dbProducts.find(item =&gt; item.id === id);
             if (!p) return;
 
             document.getElementById('admin-product-modal-title').innerText = "Edit Detail Bunga";
@@ -1218,7 +1218,7 @@
             document.getElementById('ap-best').checked = p.isBest;
 
             const sel = document.getElementById('ap-category');
-            sel.innerHTML = dbCategories.map(c => `<option> value="${c}" ${c === p.category ? 'selected' : ''}>${c}</option>`).join('');
+            sel.innerHTML = dbCategories.map(c =&gt; `<option> value="${c}" ${c === p.category ? 'selected' : ''}&gt;${c}</option>`).join('');
 
             document.getElementById('admin-product-modal').classList.remove('hidden');
         }
@@ -1244,7 +1244,7 @@
 
             if (id) {
                 // Edit
-                const pIndex = dbProducts.findIndex(p => p.id === id);
+                const pIndex = dbProducts.findIndex(p =&gt; p.id === id);
                 dbProducts[pIndex] = { id, name, category: cat, price, img, desc, stock, isBest };
             } else {
                 // Tambah Baru
@@ -1258,7 +1258,7 @@
 
         function deleteProduct(id) {
             if (confirm("Apakah Anda yakin ingin menghapus produk bunga ini?")) {
-                dbProducts = dbProducts.filter(p => p.id !== id);
+                dbProducts = dbProducts.filter(p =&gt; p.id !== id);
                 initApp();
             }
         }
@@ -1267,7 +1267,7 @@
         function renderAdminCategories() {
             const tbody = document.getElementById('admin-kategori-tbody');
             let html = "";
-            dbCategories.forEach((c, index) => {
+            dbCategories.forEach((c, index) =&gt; {
                 html += `
                 <tr class='border-b border-gray-100'>
                     <td class='p-3 font-semibold'>${c}</td>
@@ -1298,7 +1298,7 @@
         function renderAdminBlogs() {
             const tbody = document.getElementById('admin-blogs-tbody');
             let html = "";
-            dbBlogs.forEach(b => {
+            dbBlogs.forEach(b =&gt; {
                 html += `
                 <tr class='border-b border-gray-100'>
                     <td class='p-3 font-semibold'>${b.title}</td>
@@ -1324,7 +1324,7 @@
         }
 
         function openEditBlogModal(id) {
-            const b = dbBlogs.find(item => item.id === id);
+            const b = dbBlogs.find(item =&gt; item.id === id);
             if (!b) return;
 
             document.getElementById('admin-blog-modal-title').innerText = "Edit Artikel";
@@ -1353,7 +1353,7 @@
             }
 
             if (id) {
-                const bIndex = dbBlogs.findIndex(b => b.id === id);
+                const bIndex = dbBlogs.findIndex(b =&gt; b.id === id);
                 dbBlogs[bIndex] = { id, title, excerpt, content, date: new Date().toISOString().split('T')[0], author };
             } else {
                 const newId = "B" + String(dbBlogs.length + 1).padStart(3, '0');
@@ -1366,7 +1366,7 @@
 
         function deleteBlog(id) {
             if (confirm("Apakah Anda yakin ingin menghapus artikel ini?")) {
-                dbBlogs = dbBlogs.filter(b => b.id !== id);
+                dbBlogs = dbBlogs.filter(b =&gt; b.id !== id);
                 initApp();
             }
         }
@@ -1375,7 +1375,7 @@
         function renderAdminSales() {
             const tbody = document.getElementById('admin-penjualan-tbody');
             let html = "";
-            dbSales.forEach(s => {
+            dbSales.forEach(s =&gt; {
                 const badgeClass = s.status === "Selesai" ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800";
                 html += `
                 <tr class='border-b border-gray-100'>
@@ -1393,7 +1393,7 @@
         }
 
         function toggleSaleStatus(id) {
-            const sale = dbSales.find(s => s.id === id);
+            const sale = dbSales.find(s =&gt; s.id === id);
             if (!sale) return;
             sale.status = sale.status === "Pending" ? "Selesai" : "Pending";
             renderAdminDashboard();
