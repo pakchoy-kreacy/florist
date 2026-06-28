@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html lang='id' xmlns='http://www.w3.org/1999/xhtml' xmlns:b='http://www.google.com/2005/gml/b' xmlns:data='http://www.google.com/2005/gml/data' xmlns:expr='http://www.google.com/2005/gml/expr'>
+<html lang='id'>
 <head>
     <meta charset='UTF-8'/>
     <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
@@ -38,17 +38,15 @@
             min-height: 100vh;
         }
     </style>
-<b:skin><![CDATA[
-
-]]></b:skin>
+<!-- Template styles -->
 </head>
 <body class='bg-gray-50 text-gray-800 flex flex-col min-h-screen'>
 
     <script>
         // KONFIGURASI APLIKASI
         // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER
-        const IS_PREVIEW = false; 
-        const GAS_URL = &quot;https://script.google.com/macros/s/AKfycbzOEVaP-QtzzfRCEzejOousZAlzbVFOQjduiWCc79g0DYAPeXsmRsO2DAhOuKuVP_HM/exec&quot;;
+        const IS_PREVIEW = true; 
+        // const GAS_URL = ...; // Aktifkan jika deploy via Google Apps Script
 
         // State Global Aplikasi
         let currentRole = &quot;Guest&quot;;
@@ -84,12 +82,6 @@
             { id: &quot;TX003&quot;, user: &quot;Budi Santoso&quot;, items: &quot;Classic Red Rose Box (1)&quot;, total: 450000, date: &quot;2026-06-24&quot;, status: &quot;Pending&quot; }
         ];
     </script>
-
-    <!-- Blogger Hidden Post Thumbnail (Kebutuhan optimasi indexing crawler Blogger) -->
-    <div class='hidden'>
-        <img alt='Cahya &amp; Embun Florist Bogor' src='https://images.unsplash.com/photo-1545239351-ef35f43d514b?auto=format&amp;fit=crop&amp;w=1200&amp;q=80'/>
-        <p>Cahya &amp; Embun Florist adalah Toko Bunga Bogor terbaik dan berkualitas yang menyediakan karangan bunga papan, standing flower, buket bunga, bunga meja dengan pengiriman cepat 24 jam gratis ongkir untuk area Bogor Kota.</p>
-    </div>
 
     <!-- Header Atas: Informasi Kontak Singkat -->
     <div class='bg-green-700 text-white text-xs py-2 px-4'>
@@ -1408,6 +1400,5 @@
             renderAdminDashboard();
         }
     </script>
-<b:section class='main' id='main' showaddelement='yes'/>
 </body>
 </html>
