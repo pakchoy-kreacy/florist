@@ -43,9 +43,10 @@
 
     <script>
         // KONFIGURASI APLIKASI
-        // UBAH IS_PREVIEW KE false JIKA DI-DEPLOY SEBAGAI GOOGLE APPS SCRIPT WEB APP
-        const IS_PREVIEW = true; 
-        // const GAS_URL = ...; // Aktifkan jika deploy via Google Apps Script
+        // IS_PREVIEW = true  => pakai data dummy (untuk test lokal)
+        // IS_PREVIEW = false => terhubung ke Google Apps Script backend
+        const IS_PREVIEW = false;
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzCZVfmL1pIuoT8QiVVx6Y-XvdrbrLgbcQ_OghkEigUiKv_KXdIc6AjYn8_X0LE4CCo/exec';
 
         // State Global Aplikasi
         let currentRole = "Guest";
@@ -622,54 +623,68 @@
 
     <!-- LOGIC SCRIPT -->
     <script>
+        // Helper untuk memanggil Google Apps Script backend via fetch
+        async function callGas(action, payload = {}) {
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8'
+                    },
+                    body: JSON.stringify({ action, payload })
+                });
+                return await response.json();
+            } catch (err) {
+                console.error('GAS Error:', err);
+                return { success: false, msg: 'Koneksi ke server gagal.' };
+            }
+        }
+
         // Memulai Inisialisasi saat Halaman Selesai Dimuat
         window.onload = function() {
             initApp();
         };
 
-        function initApp() {
-            if (!IS_PREVIEW && typeof google !== 'undefined' && google.script) {
-                google.script.run.withSuccessHandler(function(data) {
-                    if (data.categories && data.categories.length > 0) {
-                        dbCategories = data.categories.map(c => c.nama_kategori);
-                    }
-                    if (data.products && data.products.length > 0) {
-                        dbProducts = data.products.map(p => ({
-                            id: p.id,
-                            name: p.nama_bunga,
-                            category: p.kategori,
-                            price: Number(p.harga),
-                            img: p.image_url,
-                            desc: p.deskripsi,
-                            stock: Number(p.stok),
-                            isBest: p.best_seller === "Ya"
-                        }));
-                    }
-                    if (data.blogs && data.blogs.length > 0) {
-                        dbBlogs = data.blogs.map(b => ({
-                            id: b.id,
-                            title: b.judul,
-                            excerpt: b.ringkasan,
-                            content: b.konten,
-                            date: b.tanggal,
-                            author: b.penulis
-                        }));
-                    }
-                    if (data.sales && data.sales.length > 0) {
-                        dbSales = data.sales.map(s => ({
-                            id: s.id_transaksi,
-                            user: s.pelanggan,
-                            items: s.item_pesanan,
-                            total: Number(s.total_transaksi),
-                            date: s.tanggal,
-                            status: s.status
-                        }));
-                    }
-                    renderAll();
-                }).getDatabaseSnapshot();
-            } else {
-                renderAll();
+        async function initApp() {
+            if (!IS_PREVIEW) {
+                const data = await callGas('getDatabaseSnapshot', {});
+                if (data.categories && data.categories.length > 0) {
+                    dbCategories = data.categories.map(c => c.nama_kategori);
+                }
+                if (data.products && data.products.length > 0) {
+                    dbProducts = data.products.map(p => ({
+                        id: p.id,
+                        name: p.nama_bunga,
+                        category: p.kategori,
+                        price: Number(p.harga),
+                        img: p.image_url,
+                        desc: p.deskripsi,
+                        stock: Number(p.stok),
+                        isBest: p.best_seller === "Ya"
+                    }));
+                }
+                if (data.blogs && data.blogs.length > 0) {
+                    dbBlogs = data.blogs.map(b => ({
+                        id: b.id,
+                        title: b.judul,
+                        excerpt: b.ringkasan,
+                        content: b.konten,
+                        date: b.tanggal,
+                        author: b.penulis
+                    }));
+                }
+                if (data.sales && data.sales.length > 0) {
+                    dbSales = data.sales.map(s => ({
+                        id: s.id_transaksi,
+                        user: s.pelanggan,
+                        items: s.item_pesanan,
+                        total: Number(s.total_transaksi),
+                        date: s.tanggal,
+                        status: s.status
+                    }));
+                }
             }
+            renderAll();
         }
 
         function renderAll() {
@@ -987,7 +1002,7 @@
         }
 
         // Checkout & Pengiriman WhatsApp
-        function checkoutCart() {
+        async function checkoutCart() {
             if (cart.length === 0) {
                 alert("Keranjang masih kosong!");
                 return;
@@ -1050,18 +1065,15 @@
 
             // Panggil API Backend GAS jika diaktifkan
             if (!IS_PREVIEW) {
-                google.script.run.withSuccessHandler(() => {
-                    renderAdminDashboard();
-                }).addSale(salesRecord);
-            } else {
-                renderAdminDashboard();
+                await callGas('addSale', salesRecord);
             }
+            renderAdminDashboard();
 
             window.open(`https://wa.me/6285881654988?text=${encodeURIComponent(message)}`, '_blank');
         }
 
         // MANAJEMEN OTENTIKASI & LOGOUT
-        function handleLogin() {
+        async function handleLogin() {
             const user = document.getElementById('login-username').value;
             const pass = document.getElementById('login-password').value;
 
@@ -1083,24 +1095,23 @@
                     alert("Gagal Masuk! Username atau Password salah.");
                 }
             } else {
-                // Mode Live Blogger (Memanggil Google Apps Script)
-                google.script.run.withSuccessHandler(res => {
-                    if (res.success) {
-                        currentRole = res.role;
-                        currentUser = { username: user, name: res.name };
-                        if (currentRole === "Admin") {
-                            showSection('dashboard-admin');
-                            renderAdminDashboard();
-                        } else {
-                            document.getElementById('welcome-customer-name').innerText = `Halo, ${res.name}!`;
-                            showSection('dashboard-pelanggan');
-                            renderCustomerOrders();
-                        }
-                        updateAuthUI();
+                // Mode Live: Memanggil Google Apps Script via fetch
+                const res = await callGas('verifyLogin', { username: user, password: pass });
+                if (res.success) {
+                    currentRole = res.role;
+                    currentUser = { username: user, name: res.name };
+                    if (currentRole === "Admin") {
+                        showSection('dashboard-admin');
+                        renderAdminDashboard();
                     } else {
-                        alert("Gagal Masuk! Detail login tidak valid.");
+                        document.getElementById('welcome-customer-name').innerText = `Halo, ${res.name}!`;
+                        showSection('dashboard-pelanggan');
+                        renderCustomerOrders();
                     }
-                }).verifyLogin(user, pass);
+                    updateAuthUI();
+                } else {
+                    alert(res.msg || "Gagal Masuk! Detail login tidak valid.");
+                }
             }
         }
 
