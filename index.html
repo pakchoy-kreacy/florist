@@ -137,7 +137,11 @@
                 </button>
 
                 <!-- Mobile Header Auth (icon user/login, visible below sm) -->
-                <div id='mobile-header-auth' class='sm:hidden'></div>
+                <div id='mobile-header-auth' class='sm:hidden'>
+                    <button class='min-h-[44px] min-w-[44px] flex items-center justify-center bg-green-100 hover:bg-green-200 text-green-700 rounded-full transition shadow-sm' onclick="showSection('login-section')" aria-label='Login'>
+                        <i class='fa-solid fa-user text-lg'></i>
+                    </button>
+                </div>
 
                 <!-- Cart Button -->
                 <button class='relative min-h-[44px] min-w-[44px] flex items-center justify-center bg-gray-100 hover:bg-green-100 text-gray-700 hover:text-green-700 rounded-full transition shadow-sm' onclick='openCartModal()' aria-label='Keranjang'>
