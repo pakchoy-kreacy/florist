@@ -99,7 +99,7 @@
 
     <!-- Navigation Header -->
     <header class='bg-white shadow-md sticky top-0 z-40'>
-        <div class='container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4'>
+        <div class='container mx-auto p-4 flex justify-between items-center gap-4'>
             <!-- Brand Logo -->
             <div class='cursor-pointer flex items-center space-x-3' onclick="showSection('beranda')">
                 <div class='bg-green-100 p-2.5 rounded-full text-green-700 shadow-inner'>
@@ -111,16 +111,16 @@
                 </div>
             </div>
 
-            <!-- Tab Navigation Menu -->
-            <nav class='flex flex-wrap justify-center gap-2 sm:gap-4 font-semibold text-sm text-gray-600'>
+            <!-- Desktop Tab Navigation Menu -->
+            <nav class='hidden md:flex flex-wrap justify-center gap-2 sm:gap-4 font-semibold text-sm text-gray-600'>
                 <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick="showSection('beranda')">Beranda</button>
-                
+
                 <!-- Dropdown Kategori Produk -->
-                <div class='relative group'>
-                    <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition flex items-center gap-1'>
+                <div class='relative' id='nav-produk-dropdown'>
+                    <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition flex items-center gap-1' onclick='toggleProdukDropdown()'>
                         Produk <i class='fa-solid fa-chevron-down text-xs'></i>
                     </button>
-                    <div class='absolute left-0 mt-1 w-48 bg-white border border-gray-100 rounded-lg shadow-xl hidden group-hover:block z-50 py-2' id='nav-dropdown-categories'>
+                    <div class='absolute left-0 top-full w-48 bg-white border border-gray-100 rounded-lg shadow-xl hidden z-50 py-2' id='nav-dropdown-categories'>
                         <!-- Diisi Kategori secara dinamis -->
                     </div>
                 </div>
@@ -129,16 +129,21 @@
                 <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick="showSection('blogs')">Blog</button>
             </nav>
 
-            <!-- User Actions & Cart -->
-            <div class='flex items-center space-x-3'>
+            <!-- User Actions, Cart & Mobile Menu Toggle -->
+            <div class='flex items-center space-x-2 sm:space-x-3'>
+                <!-- Mobile Menu Toggle -->
+                <button class='md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-green-50 text-gray-700 transition' onclick='openMobileMenu()' aria-label='Buka menu'>
+                    <i class='fa-solid fa-bars text-lg'></i>
+                </button>
+
                 <!-- Cart Button -->
-                <button class='relative p-2 bg-gray-100 hover:bg-green-100 text-gray-700 hover:text-green-700 rounded-full transition shadow-sm' onclick='openCartModal()'>
+                <button class='relative min-h-[44px] min-w-[44px] flex items-center justify-center bg-gray-100 hover:bg-green-100 text-gray-700 hover:text-green-700 rounded-full transition shadow-sm' onclick='openCartModal()' aria-label='Keranjang'>
                     <i class='fa-solid fa-shopping-basket text-lg'></i>
                     <span class='absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden' id='cart-badge'>0</span>
                 </button>
 
                 <!-- Dynamic Auth Button -->
-                <div id='auth-actions-container'>
+                <div id='auth-actions-container' class='hidden sm:block'>
                     <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick="showSection('login-section')">
                         <i class='fa-solid fa-sign-in-alt'></i> Login
                     </button>
@@ -146,6 +151,35 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile Menu Drawer -->
+    <div class='fixed inset-0 z-50 hidden' id='mobile-menu'>
+        <div class='absolute inset-0 bg-black/50' onclick='closeMobileMenu()'></div>
+        <div class='absolute right-0 top-0 h-full w-72 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 translate-x-full flex flex-col' id='mobile-menu-panel'>
+            <div class='p-4 border-b border-gray-100 flex justify-between items-center'>
+                <span class='font-bold text-gray-800'>Menu</span>
+                <button class='min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-600 transition' onclick='closeMobileMenu()' aria-label='Tutup menu'>
+                    <i class='fa-solid fa-times text-lg'></i>
+                </button>
+            </div>
+            <nav class='p-4 space-y-2 overflow-y-auto flex-1 font-semibold text-gray-700'>
+                <button class='w-full text-left px-4 py-3 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick="showSection('beranda'); closeMobileMenu()">Beranda</button>
+
+                <!-- Mobile Produk Dropdown -->
+                <div>
+                    <button class='w-full text-left px-4 py-3 rounded-lg hover:bg-green-50 hover:text-green-700 transition flex items-center justify-between' onclick='toggleMobileProdukDropdown()'>
+                        <span>Produk</span>
+                        <i class='fa-solid fa-chevron-down text-xs'></i>
+                    </button>
+                    <div class='hidden pl-4 space-y-1 mt-1' id='mobile-dropdown-categories'></div>
+                </div>
+
+                <button class='w-full text-left px-4 py-3 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick="showSection('tentang-kami'); closeMobileMenu()">Tentang Kami</button>
+                <button class='w-full text-left px-4 py-3 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick="showSection('blogs'); closeMobileMenu()">Blog</button>
+                <div class='sm:hidden pt-4 border-t border-gray-100' id='mobile-auth-container'></div>
+            </nav>
+        </div>
+    </div>
 
     <!-- Main Application Container -->
     <main class='flex-grow container mx-auto px-4 py-6' id='app-container'>
@@ -181,8 +215,8 @@
                     </div>
                     <!-- Navigation Buttons for Slider (Custom touch/click swipe) -->
                     <div class='flex gap-2'>
-                        <button class='p-2 bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick="scrollBestSellers('left')"><i class='fa-solid fa-arrow-left'></i></button>
-                        <button class='p-2 bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick="scrollBestSellers('right')"><i class='fa-solid fa-arrow-right'></i></button>
+                        <button class='min-h-[44px] min-w-[44px] flex items-center justify-center bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick="scrollBestSellers('left')" aria-label='Geser kiri'><i class='fa-solid fa-arrow-left'></i></button>
+                        <button class='min-h-[44px] min-w-[44px] flex items-center justify-center bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick="scrollBestSellers('right')" aria-label='Geser kanan'><i class='fa-solid fa-arrow-right'></i></button>
                     </div>
                 </div>
                 
@@ -213,7 +247,7 @@
                 </div>
                 <!-- Pencarian -->
                 <div class='relative w-full md:w-64'>
-                    <input class='w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='katalog-search' oninput='filterKatalog()' placeholder='Cari nama bunga...' type='text'/>
+                    <input class='w-full border border-gray-200 rounded-lg pl-10 pr-4 py-2 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='katalog-search' oninput='filterKatalog()' placeholder='Cari nama bunga...' type='text'/>
                     <span class='absolute left-3.5 top-2.5 text-gray-400'><i class='fa-solid fa-magnifying-glass'></i></span>
                 </div>
             </div>
@@ -270,11 +304,11 @@
             <div class='space-y-4'>
                 <div>
                     <label class='block text-xs font-bold text-gray-500 uppercase mb-1.5'>Username</label>
-                    <input class='w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='login-username' placeholder='Masukkan username' type='text'/>
+                    <input class='w-full border border-gray-200 rounded-lg px-4 py-2.5 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='login-username' placeholder='Masukkan username' type='text'/>
                 </div>
                 <div>
                     <label class='block text-xs font-bold text-gray-500 uppercase mb-1.5'>Password</label>
-                    <input class='w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='login-password' placeholder='Masukkan password' type='password'/>
+                    <input class='w-full border border-gray-200 rounded-lg px-4 py-2.5 text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='login-password' placeholder='Masukkan password' type='password'/>
                 </div>
                 <div id='login-loading' class='hidden flex-col items-center justify-center gap-3 py-4'>
                     <div class='w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin'></div>
@@ -419,7 +453,7 @@
                         <div class='flex justify-between items-center'>
                             <h4 class='font-bold text-gray-700'>Daftar Kategori</h4>
                             <div class='flex gap-2'>
-                                <input class='border rounded px-3 py-1.5 text-xs focus:ring-1 focus:ring-green-500' id='input-kategori-baru' placeholder='Kategori baru' type='text'/>
+                                <input class='border rounded px-3 py-1.5 text-base md:text-xs focus:ring-1 focus:ring-green-500' id='input-kategori-baru' placeholder='Kategori baru' type='text'/>
                                 <button class='bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-2 rounded transition' onclick='handleAddCategory()'>Tambah</button>
                             </div>
                         </div>
@@ -530,7 +564,7 @@
     <!-- MODAL: DETAIL PRODUK -->
     <div class='fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden' id='product-detail-modal'>
         <div class='bg-white rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl relative animate-fade-in'>
-            <button class='absolute right-4 top-4 text-gray-400 hover:text-gray-700 bg-white/80 p-2 rounded-full shadow-sm z-10' onclick='closeProductDetailModal()'><i class='fa-solid fa-times text-lg'></i></button>
+            <button class='absolute right-4 top-4 min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-700 bg-white/80 rounded-full shadow-sm z-10 transition' onclick='closeProductDetailModal()' aria-label='Tutup'><i class='fa-solid fa-times text-lg'></i></button>
           <img alt='Detail' class='w-full h-56 object-cover' id='m-product-img' src=''/>
             <div class='p-6 space-y-4'>
                 <div class='flex justify-between items-start'>
@@ -555,51 +589,57 @@
 
     <!-- MODAL: KERANJANG BELANJA -->
     <div class='fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden' id='cart-modal'>
-        <div class='bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-6 relative'>
-            <button class='absolute right-4 top-4 text-gray-400 hover:text-gray-700' onclick='closeCartModal()'><i class='fa-solid fa-times text-lg'></i></button>
-            <h3 class='font-bold text-xl text-gray-800 flex items-center gap-2'><i class='fa-solid fa-shopping-basket text-green-600'></i> Keranjang Bunga Anda</h3>
-            
-            <!-- List Items -->
-            <div class='space-y-3 max-h-60 overflow-y-auto pr-1' id='cart-items-container'>
-                <!-- Dinamis diisi via JS -->
+        <div class='bg-white rounded-2xl max-w-md w-full max-h-[90vh] shadow-2xl relative flex flex-col'>
+            <div class='p-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0'>
+                <h3 class='font-bold text-xl text-gray-800 flex items-center gap-2'><i class='fa-solid fa-shopping-basket text-green-600'></i> Keranjang Bunga Anda</h3>
+                <button class='min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition' onclick='closeCartModal()' aria-label='Tutup keranjang'><i class='fa-solid fa-times text-lg'></i></button>
             </div>
 
-            <!-- Total Harga -->
-            <div class='flex justify-between items-center pt-4 border-t border-gray-100 font-bold'>
-                <span class='text-gray-500'>Subtotal:</span>
-                <span class='text-xl text-green-700' id='cart-total-price'>Rp 0</span>
+            <div class='flex-1 overflow-y-auto p-5 space-y-5 min-h-0'>
+                <!-- List Items -->
+                <div class='space-y-3' id='cart-items-container'>
+                    <!-- Dinamis diisi via JS -->
+                </div>
+
+                <!-- Total Harga -->
+                <div class='flex justify-between items-center pt-4 border-t border-gray-100 font-bold'>
+                    <span class='text-gray-500'>Subtotal:</span>
+                    <span class='text-xl text-green-700' id='cart-total-price'>Rp 0</span>
+                </div>
+
+                <!-- Formulir Pemesanan Langsung -->
+                <div class='space-y-3'>
+                    <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider'>Detail Pengiriman</h4>
+                    <input class='w-full border rounded-lg px-3 py-2 text-base md:text-sm focus:outline-none focus:ring-1 focus:ring-green-500' id='order-name' placeholder='Nama Penerima' type='text'/>
+                    <input class='w-full border rounded-lg px-3 py-2 text-base md:text-sm focus:outline-none focus:ring-1 focus:ring-green-500' id='order-phone' placeholder='Nomor Handphone / WA' type='text'/>
+                    <textarea class='w-full border rounded-lg px-3 py-2 text-base md:text-sm h-20 md:h-16 focus:outline-none focus:ring-1 focus:ring-green-500' id='order-address' placeholder='Alamat Lengkap Pengiriman di Bogor'></textarea>
+                    <textarea class='w-full border rounded-lg px-3 py-2 text-base md:text-sm h-24 md:h-16 focus:outline-none focus:ring-1 focus:ring-green-500' id='order-card' placeholder='Isi Ucapan Kartu / Papan (Contoh: 'Selamat & Sukses atas Pernikahan...')'></textarea>
+                </div>
             </div>
 
-            <!-- Formulir Pemesanan Langsung -->
-            <div class='space-y-3'>
-                <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider'>Detail Pengiriman</h4>
-                <input class='w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500' id='order-name' placeholder='Nama Penerima' type='text'/>
-                <input class='w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-green-500' id='order-phone' placeholder='Nomor Handphone / WA' type='text'/>
-                <textarea class='w-full border rounded-lg px-3 py-2 text-sm h-16 focus:outline-none focus:ring-1 focus:ring-green-500' id='order-address' placeholder='Alamat Lengkap Pengiriman di Bogor'></textarea>
-                <textarea class='w-full border rounded-lg px-3 py-2 text-sm h-16 focus:outline-none focus:ring-1 focus:ring-green-500' id='order-card' placeholder='Isi Ucapan Kartu / Papan (Contoh: 'Selamat & Sukses atas Pernikahan...')'></textarea>
+            <div class='p-5 border-t border-gray-100 flex-shrink-0'>
+                <button class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2' onclick='checkoutCart()'>
+                    <i class='fa-brands fa-whatsapp'></i> Pesan & Kirim ke WhatsApp
+                </button>
             </div>
-
-            <button class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2' onclick='checkoutCart()'>
-                <i class='fa-brands fa-whatsapp'></i> Pesan & Kirim ke WhatsApp
-            </button>
         </div>
     </div>
 
     <!-- MODAL: TAMBAH / EDIT PRODUK ADMIN -->
     <div class='fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden' id='admin-product-modal'>
         <div class='bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 relative'>
-            <button class='absolute right-4 top-4 text-gray-400 hover:text-gray-700' onclick='closeAdminProductModal()'><i class='fa-solid fa-times text-lg'></i></button>
+            <button class='absolute right-4 top-4 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition' onclick='closeAdminProductModal()' aria-label='Tutup'><i class='fa-solid fa-times text-lg'></i></button>
             <h3 class='font-bold text-lg text-gray-800' id='admin-product-modal-title'>Tambah Bunga Baru</h3>
             <input id='ap-id' type='hidden'/>
             <div class='space-y-3'>
-                <input class='w-full border rounded px-3 py-2 text-sm' id='ap-name' placeholder='Nama Bunga' type='text'/>
-                <select class='w-full border rounded px-3 py-2 text-sm' id='ap-category'>
+                <input class='w-full border rounded px-3 py-2 text-base md:text-sm' id='ap-name' placeholder='Nama Bunga' type='text'/>
+                <select class='w-full border rounded px-3 py-2 text-base md:text-sm' id='ap-category'>
                     <!-- Kategori option di-render otomatis -->
                 </select>
-                <input class='w-full border rounded px-3 py-2 text-sm' id='ap-price' placeholder='Harga (Rupiah)' type='number'/>
-                <input class='w-full border rounded px-3 py-2 text-sm' id='ap-img' placeholder='URL Gambar Bunga' type='text'/>
-                <textarea class='w-full border rounded px-3 py-2 text-sm h-20' id='ap-desc' placeholder='Deskripsi Rangkaian Bunga'></textarea>
-                <input class='w-full border rounded px-3 py-2 text-sm' id='ap-stock' placeholder='Stok Bunga' type='number'/>
+                <input class='w-full border rounded px-3 py-2 text-base md:text-sm' id='ap-price' placeholder='Harga (Rupiah)' type='number'/>
+                <input class='w-full border rounded px-3 py-2 text-base md:text-sm' id='ap-img' placeholder='URL Gambar Bunga' type='text'/>
+                <textarea class='w-full border rounded px-3 py-2 text-base md:text-sm h-24 md:h-20' id='ap-desc' placeholder='Deskripsi Rangkaian Bunga'></textarea>
+                <input class='w-full border rounded px-3 py-2 text-base md:text-sm' id='ap-stock' placeholder='Stok Bunga' type='number'/>
                 <div class='flex items-center gap-2'>
                   <input id='ap-best' type='checkbox'/>
                     <label class='text-xs text-gray-600 font-semibold' for='ap-best'>Tandai sebagai Produk Terlaris</label>
@@ -612,14 +652,14 @@
     <!-- MODAL: TAMBAH / EDIT BLOG ADMIN -->
     <div class='fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden' id='admin-blog-modal'>
         <div class='bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative'>
-            <button class='absolute right-4 top-4 text-gray-400 hover:text-gray-700' onclick='closeAdminBlogModal()'><i class='fa-solid fa-times text-lg'></i></button>
+            <button class='absolute right-4 top-4 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition' onclick='closeAdminBlogModal()' aria-label='Tutup'><i class='fa-solid fa-times text-lg'></i></button>
             <h3 class='font-bold text-lg text-gray-800' id='admin-blog-modal-title'>Buat Artikel Baru</h3>
             <input id='ab-id' type='hidden'/>
             <div class='space-y-3'>
-                <input class='w-full border rounded px-3 py-2 text-sm' id='ab-title' placeholder='Judul Artikel' type='text'/>
-                <input class='w-full border rounded px-3 py-2 text-sm' id='ab-excerpt' placeholder='Ringkasan Singkat' type='text'/>
-                <textarea class='w-full border rounded px-3 py-2 text-sm h-40' id='ab-content' placeholder='Konten Lengkap Artikel...'></textarea>
-                <input class='w-full border rounded px-3 py-2 text-sm' id='ab-author' placeholder='Penulis' type='text'/>
+                <input class='w-full border rounded px-3 py-2 text-base md:text-sm' id='ab-title' placeholder='Judul Artikel' type='text'/>
+                <input class='w-full border rounded px-3 py-2 text-base md:text-sm' id='ab-excerpt' placeholder='Ringkasan Singkat' type='text'/>
+                <textarea class='w-full border rounded px-3 py-2 text-base md:text-sm h-40' id='ab-content' placeholder='Konten Lengkap Artikel...'></textarea>
+                <input class='w-full border rounded px-3 py-2 text-base md:text-sm' id='ab-author' placeholder='Penulis' type='text'/>
             </div>
             <button class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg transition' onclick='saveAdminBlog()'>Terbitkan Artikel</button>
         </div>
@@ -689,6 +729,7 @@
                 }
             }
             renderAll();
+            setupModalBehaviors();
         }
 
         function renderAll() {
@@ -700,6 +741,38 @@
             renderFooterBlogs();
             updateCartBadge();
             renderAdminDashboard();
+        }
+
+        function setupModalBehaviors() {
+            const modals = ['product-detail-modal', 'cart-modal', 'admin-product-modal', 'admin-blog-modal'];
+            const closeFunctions = {
+                'product-detail-modal': closeProductDetailModal,
+                'cart-modal': closeCartModal,
+                'admin-product-modal': closeAdminProductModal,
+                'admin-blog-modal': closeAdminBlogModal
+            };
+
+            modals.forEach(id => {
+                const modal = document.getElementById(id);
+                if (!modal) return;
+
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeFunctions[id]();
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    modals.forEach(id => {
+                        const modal = document.getElementById(id);
+                        if (modal && !modal.classList.contains('hidden')) {
+                            closeFunctions[id]();
+                        }
+                    });
+                }
+            });
         }
 
         // Navigasi Section
@@ -728,12 +801,53 @@
         // Render Navbar Kategori
         function renderHeaderCategories() {
             const dropdown = document.getElementById('nav-dropdown-categories');
+            const mobileDropdown = document.getElementById('mobile-dropdown-categories');
             let html = "";
+            let mobileHtml = "";
             dbCategories.forEach(cat => {
-                html += `<button class='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700' onclick="filterKatalogByCategory('${cat}')">${cat}</button>`;
+                html += `<button class='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700' onclick="filterKatalogByCategory('${cat}'); closeProdukDropdown()">${cat}</button>`;
+                mobileHtml += `<button class='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-lg' onclick="filterKatalogByCategory('${cat}'); closeMobileMenu()">${cat}</button>`;
             });
             dropdown.innerHTML = html;
+            if (mobileDropdown) mobileDropdown.innerHTML = mobileHtml;
         }
+
+        function toggleProdukDropdown() {
+            document.getElementById('nav-dropdown-categories').classList.toggle('hidden');
+        }
+
+        function closeProdukDropdown() {
+            document.getElementById('nav-dropdown-categories').classList.add('hidden');
+        }
+
+        function openMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const panel = document.getElementById('mobile-menu-panel');
+            menu.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => panel.classList.remove('translate-x-full'), 10);
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const panel = document.getElementById('mobile-menu-panel');
+            panel.classList.add('translate-x-full');
+            document.body.style.overflow = '';
+            setTimeout(() => menu.classList.add('hidden'), 300);
+        }
+
+        function toggleMobileProdukDropdown() {
+            const el = document.getElementById('mobile-dropdown-categories');
+            el.classList.toggle('hidden');
+        }
+
+        // Tutup dropdown Produk saat klik di luar
+        document.addEventListener('click', function(e) {
+            const dropdownContainer = document.getElementById('nav-produk-dropdown');
+            if (dropdownContainer && !dropdownContainer.contains(e.target)) {
+                closeProdukDropdown();
+            }
+        });
 
         // Render Slider Bunga Terlaris
         function renderBestSellers() {
@@ -983,10 +1097,10 @@
                             <h4 class='font-bold text-xs text-gray-800 truncate max-w-[200px]'>${item.name}</h4>
                             <span class='text-xs text-green-700'>${formatRupiah(item.price)} x ${item.qty}</span>
                         </div>
-                        <div class='flex items-center gap-2'>
-                            <button class='p-1 text-gray-400 hover:text-green-600' onclick='changeCartQty(${index}, -1)'><i class='fa-solid fa-minus'></i></button>
-                            <button class='p-1 text-gray-400 hover:text-green-600' onclick='changeCartQty(${index}, 1)'><i class='fa-solid fa-plus'></i></button>
-                            <button class='p-1 text-red-400 hover:text-red-600 ml-2' onclick='changeCartQty(${index}, -99)'><i class='fa-solid fa-trash-can'></i></button>
+                        <div class='flex items-center gap-1'>
+                            <button class='min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-green-600 rounded-lg transition' onclick='changeCartQty(${index}, -1)' aria-label='Kurangi'><i class='fa-solid fa-minus'></i></button>
+                            <button class='min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-green-600 rounded-lg transition' onclick='changeCartQty(${index}, 1)' aria-label='Tambah'><i class='fa-solid fa-plus'></i></button>
+                            <button class='min-h-[44px] min-w-[44px] flex items-center justify-center text-red-400 hover:text-red-600 rounded-lg transition' onclick='changeCartQty(${index}, -99)' aria-label='Hapus'><i class='fa-solid fa-trash-can'></i></button>
                         </div>
                     </div>`;
                 });
@@ -1149,11 +1263,20 @@
 
         function updateAuthUI() {
             const container = document.getElementById('auth-actions-container');
+            const mobileContainer = document.getElementById('mobile-auth-container');
+
             if (currentRole === "Guest") {
-                container.innerHTML = `
+                const desktopBtn = `
                 <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick="showSection('login-section')">
                     <i class='fa-solid fa-sign-in-alt'></i> Login
                 </button>`;
+                container.innerHTML = desktopBtn;
+                if (mobileContainer) {
+                    mobileContainer.innerHTML = `
+                    <button class='w-full bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-3 rounded-lg transition shadow-md flex items-center justify-center gap-2 font-medium' onclick="showSection('login-section'); closeMobileMenu()">
+                        <i class='fa-solid fa-sign-in-alt'></i> Login
+                    </button>`;
+                }
             } else {
                 const dest = currentRole === "Admin" ? 'dashboard-admin' : 'dashboard-pelanggan';
                 container.innerHTML = `
@@ -1163,6 +1286,17 @@
                     </button>
                     <button class='bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition' onclick='handleLogout()'><i class='fa-solid fa-power-off text-xs'></i></button>
                 </div>`;
+                if (mobileContainer) {
+                    mobileContainer.innerHTML = `
+                    <div class='space-y-2'>
+                        <button class='w-full bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 text-sm font-bold px-4 py-3 rounded-lg transition flex items-center justify-center gap-2' onclick="showSection('${dest}'); closeMobileMenu()">
+                            <i class='fa-solid fa-user-circle'></i> Panel Anda
+                        </button>
+                        <button class='w-full bg-red-50 hover:bg-red-100 text-red-600 px-4 py-3 rounded-lg transition text-sm font-bold flex items-center justify-center gap-2' onclick='handleLogout(); closeMobileMenu()'>
+                            <i class='fa-solid fa-power-off'></i> Logout
+                        </button>
+                    </div>`;
+                }
             }
         }
 
@@ -1258,9 +1392,9 @@
                     <td class='p-3 font-bold'>${formatRupiah(p.price)}</td>
                     <td class='p-3'>${p.stock}</td>
                     <td class='p-3'>${p.isBest ? '&#11088; Ya' : 'Tidak'}</td>
-                    <td class='p-3 space-x-2'>
-                        <button class='bg-blue-50 text-blue-600 px-2.5 py-1 rounded hover:bg-blue-100 transition' onclick="openEditProductModal('${p.id}')"><i class='fa-solid fa-edit'></i></button>
-                        <button class='bg-red-50 text-red-600 px-2.5 py-1 rounded hover:bg-red-100 transition' onclick="deleteProduct('${p.id}')"><i class='fa-solid fa-trash'></i></button>
+                    <td class='p-3 space-x-1'>
+                        <button class='min-h-[44px] min-w-[44px] bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition flex items-center justify-center' onclick="openEditProductModal('${p.id}')" aria-label='Edit'><i class='fa-solid fa-edit'></i></button>
+                        <button class='min-h-[44px] min-w-[44px] bg-red-50 text-red-600 rounded hover:bg-red-100 transition flex items-center justify-center' onclick="deleteProduct('${p.id}')" aria-label='Hapus'><i class='fa-solid fa-trash'></i></button>
                     </td>
                 </tr>`;
             });
@@ -1353,7 +1487,7 @@
                 <tr class='border-b border-gray-100'>
                     <td class='p-3 font-semibold'>${c}</td>
                     <td class='p-3'>
-                        <button class='bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition text-[10px]' onclick="deleteCategory(${index})">Hapus</button>
+                        <button class='min-h-[44px] min-w-[44px] bg-red-50 text-red-600 rounded hover:bg-red-100 transition flex items-center justify-center' onclick='deleteCategory(${index})' aria-label='Hapus kategori'><i class='fa-solid fa-trash text-xs'></i></button>
                     </td>
                 </tr>`;
             });
@@ -1385,9 +1519,9 @@
                     <td class='p-3 font-semibold'>${b.title}</td>
                     <td class='p-3'>${b.author}</td>
                     <td class='p-3'>${b.date}</td>
-                    <td class='p-3 space-x-2'>
-                        <button class='bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition' onclick="openEditBlogModal('${b.id}')"><i class='fa-solid fa-edit'></i></button>
-                        <button class='bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition' onclick="deleteBlog('${b.id}')"><i class='fa-solid fa-trash'></i></button>
+                    <td class='p-3 space-x-1'>
+                        <button class='min-h-[44px] min-w-[44px] bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition flex items-center justify-center' onclick="openEditBlogModal('${b.id}')" aria-label='Edit'><i class='fa-solid fa-edit'></i></button>
+                        <button class='min-h-[44px] min-w-[44px] bg-red-50 text-red-600 rounded hover:bg-red-100 transition flex items-center justify-center' onclick="deleteBlog('${b.id}')" aria-label='Hapus'><i class='fa-solid fa-trash'></i></button>
                     </td>
                 </tr>`;
             });
@@ -1465,8 +1599,8 @@
                     <td class='p-3 max-w-xs truncate'>${s.items}</td>
                     <td class='p-3 font-bold'>${formatRupiah(s.total)}</td>
                     <td class='p-3'><span class='px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}'>${s.status}</span></td>
-                    <td class='p-3 space-x-2'>
-                        <button class='bg-green-50 text-green-700 px-2 py-1 rounded hover:bg-green-100 transition text-[10px] font-bold' onclick="toggleSaleStatus('${s.id}')">Proses / Selesai</button>
+                    <td class='p-3'>
+                        <button class='min-h-[44px] px-4 bg-green-50 text-green-700 rounded hover:bg-green-100 transition text-xs font-bold' onclick="toggleSaleStatus('${s.id}')">Proses / Selesai</button>
                     </td>
                 </tr>`;
             });
