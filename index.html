@@ -136,13 +136,16 @@
                     <i class='fa-solid fa-bars text-lg'></i>
                 </button>
 
+                <!-- Mobile Header Auth (icon user/login, visible below sm) -->
+                <div id='mobile-header-auth' class='sm:hidden'></div>
+
                 <!-- Cart Button -->
                 <button class='relative min-h-[44px] min-w-[44px] flex items-center justify-center bg-gray-100 hover:bg-green-100 text-gray-700 hover:text-green-700 rounded-full transition shadow-sm' onclick='openCartModal()' aria-label='Keranjang'>
                     <i class='fa-solid fa-shopping-basket text-lg'></i>
                     <span class='absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center hidden' id='cart-badge'>0</span>
                 </button>
 
-                <!-- Dynamic Auth Button -->
+                <!-- Desktop Dynamic Auth Button -->
                 <div id='auth-actions-container' class='hidden sm:block'>
                     <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick="showSection('login-section')">
                         <i class='fa-solid fa-sign-in-alt'></i> Login
@@ -1264,6 +1267,7 @@
         function updateAuthUI() {
             const container = document.getElementById('auth-actions-container');
             const mobileContainer = document.getElementById('mobile-auth-container');
+            const mobileHeaderAuth = document.getElementById('mobile-header-auth');
 
             if (currentRole === "Guest") {
                 const desktopBtn = `
@@ -1271,6 +1275,13 @@
                     <i class='fa-solid fa-sign-in-alt'></i> Login
                 </button>`;
                 container.innerHTML = desktopBtn;
+
+                const mobileBtn = `
+                <button class='min-h-[44px] min-w-[44px] flex items-center justify-center bg-green-100 hover:bg-green-200 text-green-700 rounded-full transition shadow-sm' onclick="showSection('login-section')" aria-label='Login'>
+                    <i class='fa-solid fa-user text-lg'></i>
+                </button>`;
+                if (mobileHeaderAuth) mobileHeaderAuth.innerHTML = mobileBtn;
+
                 if (mobileContainer) {
                     mobileContainer.innerHTML = `
                     <button class='w-full bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-3 rounded-lg transition shadow-md flex items-center justify-center gap-2 font-medium' onclick="showSection('login-section'); closeMobileMenu()">
@@ -1286,6 +1297,13 @@
                     </button>
                     <button class='bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition' onclick='handleLogout()'><i class='fa-solid fa-power-off text-xs'></i></button>
                 </div>`;
+
+                const mobileBtn = `
+                <button class='min-h-[44px] min-w-[44px] flex items-center justify-center bg-green-600 hover:bg-green-700 text-white rounded-full transition shadow-sm' onclick="showSection('${dest}')" aria-label='Panel Anda'>
+                    <i class='fa-solid fa-user-circle text-lg'></i>
+                </button>`;
+                if (mobileHeaderAuth) mobileHeaderAuth.innerHTML = mobileBtn;
+
                 if (mobileContainer) {
                     mobileContainer.innerHTML = `
                     <div class='space-y-2'>
