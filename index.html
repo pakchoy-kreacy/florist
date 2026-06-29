@@ -46,7 +46,7 @@
         // IS_PREVIEW = true  => pakai data dummy (untuk test lokal)
         // IS_PREVIEW = false => terhubung ke Google Apps Script backend
         const IS_PREVIEW = false;
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzCZVfmL1pIuoT8QiVVx6Y-XvdrbrLgbcQ_OghkEigUiKv_KXdIc6AjYn8_X0LE4CCo/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzOEVaP-QtzzfRCEzejOousZAlzbVFOQjduiWCc79g0DYAPeXsmRsO2DAhOuKuVP_HM/exec';
 
         // State Global Aplikasi
         let currentRole = "Guest";
@@ -1464,7 +1464,7 @@
             document.getElementById('admin-product-modal').classList.add('hidden');
         }
 
-        function saveAdminProduct() {
+        async function saveAdminProduct() {
             const id = document.getElementById('ap-id').value;
             const name = document.getElementById('ap-name').value;
             const cat = document.getElementById('ap-category').value;
@@ -1479,22 +1479,39 @@
                 return;
             }
 
+            const productData = { id, name, category: cat, price, img, desc, stock, isBest };
+
+            if (!IS_PREVIEW) {
+                const res = await callGas('saveProductBackend', productData);
+                if (!res.success) {
+                    alert("Gagal menyimpan ke database: " + (res.msg || "Unknown error"));
+                    return;
+                }
+            }
+
             if (id) {
                 // Edit
                 const pIndex = dbProducts.findIndex(p => p.id === id);
-                dbProducts[pIndex] = { id, name, category: cat, price, img, desc, stock, isBest };
+                dbProducts[pIndex] = productData;
             } else {
                 // Tambah Baru
                 const newId = "P" + String(dbProducts.length + 1).padStart(3, '0');
-                dbProducts.push({ id: newId, name, category: cat, price, img, desc, stock, isBest });
+                dbProducts.push({ ...productData, id: newId });
             }
 
             renderAll();
             closeAdminProductModal();
         }
 
-        function deleteProduct(id) {
+        async function deleteProduct(id) {
             if (confirm("Apakah Anda yakin ingin menghapus produk bunga ini?")) {
+                if (!IS_PREVIEW) {
+                    const res = await callGas('deleteProductBackend', { id });
+                    if (!res.success) {
+                        alert("Gagal menghapus dari database: " + (res.msg || "Unknown error"));
+                        return;
+                    }
+                }
                 dbProducts = dbProducts.filter(p => p.id !== id);
                 renderAll();
             }
@@ -1516,16 +1533,35 @@
             tbody.innerHTML = html;
         }
 
-        function handleAddCategory() {
+        async function handleAddCategory() {
             const val = document.getElementById('input-kategori-baru').value;
             if (!val) return;
+
+            if (!IS_PREVIEW) {
+                const res = await callGas('saveCategoryBackend', { name: val });
+                if (!res.success) {
+                    alert("Gagal menyimpan kategori: " + (res.msg || "Unknown error"));
+                    return;
+                }
+            }
+
             dbCategories.push(val);
             document.getElementById('input-kategori-baru').value = "";
             renderAll();
         }
 
-        function deleteCategory(index) {
+        async function deleteCategory(index) {
             if (confirm("Menghapus kategori akan berdampak pada navigasi. Tetap hapus?")) {
+                const val = dbCategories[index];
+
+                if (!IS_PREVIEW) {
+                    const res = await callGas('deleteCategoryBackend', { name: val });
+                    if (!res.success) {
+                        alert("Gagal menghapus kategori: " + (res.msg || "Unknown error"));
+                        return;
+                    }
+                }
+
                 dbCategories.splice(index, 1);
                 renderAll();
             }
@@ -1577,7 +1613,7 @@
             document.getElementById('admin-blog-modal').classList.add('hidden');
         }
 
-        function saveAdminBlog() {
+        async function saveAdminBlog() {
             const id = document.getElementById('ab-id').value;
             const title = document.getElementById('ab-title').value;
             const excerpt = document.getElementById('ab-excerpt').value;
@@ -1589,20 +1625,37 @@
                 return;
             }
 
+            const blogData = { id, title, excerpt, content, date: new Date().toISOString().split('T')[0], author };
+
+            if (!IS_PREVIEW) {
+                const res = await callGas('saveBlogBackend', blogData);
+                if (!res.success) {
+                    alert("Gagal menyimpan artikel: " + (res.msg || "Unknown error"));
+                    return;
+                }
+            }
+
             if (id) {
                 const bIndex = dbBlogs.findIndex(b => b.id === id);
-                dbBlogs[bIndex] = { id, title, excerpt, content, date: new Date().toISOString().split('T')[0], author };
+                dbBlogs[bIndex] = blogData;
             } else {
                 const newId = "B" + String(dbBlogs.length + 1).padStart(3, '0');
-                dbBlogs.push({ id: newId, title, excerpt, content, date: new Date().toISOString().split('T')[0], author });
+                dbBlogs.push({ ...blogData, id: newId });
             }
 
             renderAll();
             closeAdminBlogModal();
         }
 
-        function deleteBlog(id) {
+        async function deleteBlog(id) {
             if (confirm("Apakah Anda yakin ingin menghapus artikel ini?")) {
+                if (!IS_PREVIEW) {
+                    const res = await callGas('deleteBlogBackend', { id });
+                    if (!res.success) {
+                        alert("Gagal menghapus artikel: " + (res.msg || "Unknown error"));
+                        return;
+                    }
+                }
                 dbBlogs = dbBlogs.filter(b => b.id !== id);
                 renderAll();
             }
