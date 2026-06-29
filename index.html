@@ -276,7 +276,11 @@
                     <label class='block text-xs font-bold text-gray-500 uppercase mb-1.5'>Password</label>
                     <input class='w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500' id='login-password' placeholder='Masukkan password' type='password'/>
                 </div>
-                <button class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2' onclick='handleLogin()'>
+                <div id='login-loading' class='hidden flex-col items-center justify-center gap-3 py-4'>
+                    <div class='w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin'></div>
+                    <span class='text-xs font-semibold text-white'>Memverifikasi...</span>
+                </div>
+                <button id='btn-login' class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed' onclick='handleLogin()'>
                     <i class='fa-solid fa-lock-open'></i> Verifikasi Keamanan
                 </button>
             </div>
@@ -1076,27 +1080,48 @@
         async function handleLogin() {
             const user = document.getElementById('login-username').value;
             const pass = document.getElementById('login-password').value;
+            const loadingEl = document.getElementById('login-loading');
+            const btnLogin = document.getElementById('btn-login');
+
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    loadingEl.classList.remove('hidden');
+                    loadingEl.classList.add('flex');
+                    btnLogin.disabled = true;
+                } else {
+                    loadingEl.classList.add('hidden');
+                    loadingEl.classList.remove('flex');
+                    btnLogin.disabled = false;
+                }
+            }
 
             if (IS_PREVIEW) {
                 // Mode Preview: Sesuai instruksi konfigurasi dummy
-                if (user === "admin" && pass === "edudigital") {
-                    currentRole = "Admin";
-                    currentUser = { username: "admin", name: "Pengelola Toko" };
-                    showSection('dashboard-admin');
-                    updateAuthUI();
-                } else if (user === "peserta" && pass === "edudigital") {
-                    currentRole = "Peserta";
-                    currentUser = { username: "peserta", name: "Rian Wijaya" };
-                    document.getElementById('welcome-customer-name').innerText = `Halo, ${currentUser.name}!`;
-                    showSection('dashboard-pelanggan');
-                    renderCustomerOrders();
-                    updateAuthUI();
-                } else {
-                    alert("Gagal Masuk! Username atau Password salah.");
-                }
+                setLoading(true);
+                setTimeout(() => {
+                    setLoading(false);
+                    if (user === "admin" && pass === "edudigital") {
+                        currentRole = "Admin";
+                        currentUser = { username: "admin", name: "Pengelola Toko" };
+                        showSection('dashboard-admin');
+                        updateAuthUI();
+                    } else if (user === "peserta" && pass === "edudigital") {
+                        currentRole = "Peserta";
+                        currentUser = { username: "peserta", name: "Rian Wijaya" };
+                        document.getElementById('welcome-customer-name').innerText = `Halo, ${currentUser.name}!`;
+                        showSection('dashboard-pelanggan');
+                        renderCustomerOrders();
+                        updateAuthUI();
+                    } else {
+                        alert("Gagal Masuk! Username atau Password salah.");
+                    }
+                }, 600);
             } else {
                 // Mode Live: Memanggil Google Apps Script via fetch
+                setLoading(true);
                 const res = await callGas('verifyLogin', { username: user, password: pass });
+                setLoading(false);
+
                 if (res.success) {
                     currentRole = res.role;
                     currentUser = { username: user, name: res.name };
