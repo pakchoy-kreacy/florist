@@ -43,7 +43,7 @@
 
     <script>
         // KONFIGURASI APLIKASI
-        // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER
+        // UBAH IS_PREVIEW KE false JIKA DI-DEPLOY SEBAGAI GOOGLE APPS SCRIPT WEB APP
         const IS_PREVIEW = true; 
         // const GAS_URL = ...; // Aktifkan jika deploy via Google Apps Script
 
@@ -100,7 +100,7 @@
     <header class='bg-white shadow-md sticky top-0 z-40'>
         <div class='container mx-auto p-4 flex flex-col md:flex-row justify-between items-center gap-4'>
             <!-- Brand Logo -->
-            <div class='cursor-pointer flex items-center space-x-3' onclick='showSection('beranda')'>
+            <div class='cursor-pointer flex items-center space-x-3' onclick="showSection('beranda')">
                 <div class='bg-green-100 p-2.5 rounded-full text-green-700 shadow-inner'>
                     <i class='fa-solid fa-seedling text-2xl'/>
                 </div>
@@ -112,7 +112,7 @@
 
             <!-- Tab Navigation Menu -->
             <nav class='flex flex-wrap justify-center gap-2 sm:gap-4 font-semibold text-sm text-gray-600'>
-                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick='showSection('beranda')'>Beranda</button>
+                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick="showSection('beranda')">Beranda</button>
                 
                 <!-- Dropdown Kategori Produk -->
                 <div class='relative group'>
@@ -124,8 +124,8 @@
                     </div>
                 </div>
 
-                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick='showSection('tentang-kami')'>Tentang Kami</button>
-                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick='showSection('blogs')'>Blog</button>
+                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick="showSection('tentang-kami')">Tentang Kami</button>
+                <button class='nav-link px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-700 transition' onclick="showSection('blogs')">Blog</button>
             </nav>
 
             <!-- User Actions & Cart -->
@@ -138,7 +138,7 @@
 
                 <!-- Dynamic Auth Button -->
                 <div id='auth-actions-container'>
-                    <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick='showSection('login-section')'>
+                    <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick="showSection('login-section')">
                         <i class='fa-solid fa-sign-in-alt'/> Login
                     </button>
                 </div>
@@ -180,8 +180,8 @@
                     </div>
                     <!-- Navigation Buttons for Slider (Custom touch/click swipe) -->
                     <div class='flex gap-2'>
-                        <button class='p-2 bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick='scrollBestSellers('left')'><i class='fa-solid fa-arrow-left'/></button>
-                        <button class='p-2 bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick='scrollBestSellers('right')'><i class='fa-solid fa-arrow-right'/></button>
+                        <button class='p-2 bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick="scrollBestSellers('left')"><i class='fa-solid fa-arrow-left'/></button>
+                        <button class='p-2 bg-white border border-gray-200 hover:bg-green-50 text-gray-600 rounded-full shadow-sm transition' onclick="scrollBestSellers('right')"><i class='fa-solid fa-arrow-right'/></button>
                     </div>
                 </div>
                 
@@ -628,6 +628,51 @@
         };
 
         function initApp() {
+            if (!IS_PREVIEW && typeof google !== 'undefined' && google.script) {
+                google.script.run.withSuccessHandler(function(data) {
+                    if (data.categories && data.categories.length > 0) {
+                        dbCategories = data.categories.map(c => c.nama_kategori);
+                    }
+                    if (data.products && data.products.length > 0) {
+                        dbProducts = data.products.map(p => ({
+                            id: p.id,
+                            name: p.nama_bunga,
+                            category: p.kategori,
+                            price: Number(p.harga),
+                            img: p.image_url,
+                            desc: p.deskripsi,
+                            stock: Number(p.stok),
+                            isBest: p.best_seller === "Ya"
+                        }));
+                    }
+                    if (data.blogs && data.blogs.length > 0) {
+                        dbBlogs = data.blogs.map(b => ({
+                            id: b.id,
+                            title: b.judul,
+                            excerpt: b.ringkasan,
+                            content: b.konten,
+                            date: b.tanggal,
+                            author: b.penulis
+                        }));
+                    }
+                    if (data.sales && data.sales.length > 0) {
+                        dbSales = data.sales.map(s => ({
+                            id: s.id_transaksi,
+                            user: s.pelanggan,
+                            items: s.item_pesanan,
+                            total: Number(s.total_transaksi),
+                            date: s.tanggal,
+                            status: s.status
+                        }));
+                    }
+                    renderAll();
+                }).getDatabaseSnapshot();
+            } else {
+                renderAll();
+            }
+        }
+
+        function renderAll() {
             renderHeaderCategories();
             renderBestSellers();
             renderBerandaCategories();
@@ -666,7 +711,7 @@
             const dropdown = document.getElementById('nav-dropdown-categories');
             let html = "";
             dbCategories.forEach(cat => {
-                html += `<button class='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700' onclick='filterKatalogByCategory('${cat}')'>${cat}</button>`;
+                html += `<button class='block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700' onclick="filterKatalogByCategory('${cat}')">${cat}</button>`;
             });
             dropdown.innerHTML = html;
         }
@@ -689,7 +734,7 @@
                         <p class='text-xs text-gray-400 line-clamp-2'>${p.desc}</p>
                         <div class='flex justify-between items-center pt-2'>
                             <span class='font-black text-sm text-green-700'>${formatRupiah(p.price)}</span>
-                            <button class='bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg transition' onclick='openProductDetailModal('${p.id}')'><i class='fa-solid fa-eye text-xs'/></button>
+                            <button class='bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg transition' onclick="openProductDetailModal('${p.id}')"><i class='fa-solid fa-eye text-xs'/></button>
                         </div>
                     </div>
                 </div>`;
@@ -720,7 +765,7 @@
                 <div class='space-y-4'>
                     <div class='flex justify-between items-center'>
                         <h3 class='text-xl font-bold text-gray-800 flex items-center gap-2'><span class='w-2.5 h-6 bg-green-600 rounded-full inline-block'/> ${cat}</h3>
-                        <button class='text-xs font-bold text-green-600 hover:underline' onclick='filterKatalogByCategory('${cat}')'>Lihat Semua (${dbProducts.filter(p => p.category === cat).length}) <i class='fa-solid fa-arrow-right'/></button>
+                        <button class='text-xs font-bold text-green-600 hover:underline' onclick="filterKatalogByCategory('${cat}')">Lihat Semua (${dbProducts.filter(p => p.category === cat).length}) <i class='fa-solid fa-arrow-right'/></button>
                     </div>
                     <div class='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6'>`;
                 
@@ -732,8 +777,8 @@
                             <h4 class='font-bold text-sm text-gray-800 truncate'>${p.name}</h4>
                             <span class='font-black text-xs text-green-700'>${formatRupiah(p.price)}</span>
                             <div class='flex gap-2 pt-2'>
-                                <button class='flex-grow bg-gray-100 hover:bg-green-50 text-gray-600 hover:text-green-700 font-bold py-1.5 rounded text-[11px] transition' onclick='openProductDetailModal('${p.id}')'>Detail</button>
-                                <button class='bg-green-600 hover:bg-green-700 text-white px-2.5 rounded transition' onclick='addToCart('${p.id}')'><i class='fa-solid fa-cart-plus text-xs'/></button>
+                                <button class='flex-grow bg-gray-100 hover:bg-green-50 text-gray-600 hover:text-green-700 font-bold py-1.5 rounded text-[11px] transition' onclick="openProductDetailModal('${p.id}')">Detail</button>
+                                <button class='bg-green-600 hover:bg-green-700 text-white px-2.5 rounded transition' onclick="addToCart('${p.id}')"><i class='fa-solid fa-cart-plus text-xs'/></button>
                             </div>
                         </div>
                     </div>`;
@@ -748,9 +793,9 @@
         let selectedCategoryFilter = "Semua";
         function renderKatalog() {
             const buttonsContainer = document.getElementById('katalog-filter-buttons');
-            let btnsHtml = `<button class='px-4 py-1.5 rounded-full text-xs font-bold transition ${selectedCategoryFilter === 'Semua' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}' onclick='setKatalogCategoryFilter('Semua')'>Semua</button>`;
+            let btnsHtml = `<button class='px-4 py-1.5 rounded-full text-xs font-bold transition ${selectedCategoryFilter === 'Semua' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}' onclick="setKatalogCategoryFilter('Semua')">Semua</button>`;
             dbCategories.forEach(cat => {
-                btnsHtml += `<button class='px-4 py-1.5 rounded-full text-xs font-bold transition ${selectedCategoryFilter === cat ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}' onclick='setKatalogCategoryFilter('${cat}')'>${cat}</button>`;
+                btnsHtml += `<button class='px-4 py-1.5 rounded-full text-xs font-bold transition ${selectedCategoryFilter === cat ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}' onclick="setKatalogCategoryFilter('${cat}')">${cat}</button>`;
             });
             buttonsContainer.innerHTML = btnsHtml;
 
@@ -795,8 +840,8 @@
                             <div class='flex justify-between items-center pt-2'>
                                 <span class='font-black text-sm text-green-700'>${formatRupiah(p.price)}</span>
                                 <div class='flex gap-1'>
-                                    <button class='bg-gray-100 hover:bg-green-50 text-gray-600 hover:text-green-700 p-2 rounded transition' onclick='openProductDetailModal('${p.id}')'><i class='fa-solid fa-eye text-xs'/></button>
-                                    <button class='bg-green-600 hover:bg-green-700 text-white p-2 rounded transition' onclick='addToCart('${p.id}')'><i class='fa-solid fa-cart-plus text-xs'/></button>
+                                    <button class='bg-gray-100 hover:bg-green-50 text-gray-600 hover:text-green-700 p-2 rounded transition' onclick="openProductDetailModal('${p.id}')"><i class='fa-solid fa-eye text-xs'/></button>
+                                    <button class='bg-green-600 hover:bg-green-700 text-white p-2 rounded transition' onclick="addToCart('${p.id}')"><i class='fa-solid fa-cart-plus text-xs'/></button>
                                 </div>
                             </div>
                         </div>
@@ -1070,14 +1115,14 @@
             const container = document.getElementById('auth-actions-container');
             if (currentRole === "Guest") {
                 container.innerHTML = `
-                <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick='showSection('login-section')'>
+                <button class='bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1.5 font-medium' onclick="showSection('login-section')">
                     <i class='fa-solid fa-sign-in-alt'/> Login
                 </button>`;
             } else {
                 const dest = currentRole === "Admin" ? 'dashboard-admin' : 'dashboard-pelanggan';
                 container.innerHTML = `
                 <div class='flex items-center gap-2'>
-                    <button class='bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1' onclick='showSection('${dest}')'>
+                    <button class='bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 text-xs font-bold px-3 py-2 rounded-lg transition flex items-center gap-1' onclick="showSection('${dest}')">
                         <i class='fa-solid fa-user-circle'/> Panel Anda
                     </button>
                     <button class='bg-red-50 hover:bg-red-100 text-red-600 p-2 rounded-lg transition' onclick='handleLogout()'><i class='fa-solid fa-power-off text-xs'/></button>
@@ -1178,8 +1223,8 @@
                     <td class='p-3'>${p.stock}</td>
                     <td class='p-3'>${p.isBest ? '&#11088; Ya' : 'Tidak'}</td>
                     <td class='p-3 space-x-2'>
-                        <button class='bg-blue-50 text-blue-600 px-2.5 py-1 rounded hover:bg-blue-100 transition' onclick='openEditProductModal('${p.id}')'><i class='fa-solid fa-edit'/></button>
-                        <button class='bg-red-50 text-red-600 px-2.5 py-1 rounded hover:bg-red-100 transition' onclick='deleteProduct('${p.id}')'><i class='fa-solid fa-trash'/></button>
+                        <button class='bg-blue-50 text-blue-600 px-2.5 py-1 rounded hover:bg-blue-100 transition' onclick="openEditProductModal('${p.id}')"><i class='fa-solid fa-edit'/></button>
+                        <button class='bg-red-50 text-red-600 px-2.5 py-1 rounded hover:bg-red-100 transition' onclick="deleteProduct('${p.id}')"><i class='fa-solid fa-trash'/></button>
                     </td>
                 </tr>`;
             });
@@ -1218,7 +1263,7 @@
             document.getElementById('ap-best').checked = p.isBest;
 
             const sel = document.getElementById('ap-category');
-            sel.innerHTML = dbCategories.map(c => `<option> value="${c}" ${c === p.category ? 'selected' : ''}>${c}</option>`).join('');
+            sel.innerHTML = dbCategories.map(c => `<option value="${c}" ${c === p.category ? 'selected' : ''}>${c}</option>`).join('');
 
             document.getElementById('admin-product-modal').classList.remove('hidden');
         }
@@ -1252,14 +1297,14 @@
                 dbProducts.push({ id: newId, name, category: cat, price, img, desc, stock, isBest });
             }
 
-            initApp();
+            renderAll();
             closeAdminProductModal();
         }
 
         function deleteProduct(id) {
             if (confirm("Apakah Anda yakin ingin menghapus produk bunga ini?")) {
                 dbProducts = dbProducts.filter(p => p.id !== id);
-                initApp();
+                renderAll();
             }
         }
 
@@ -1272,7 +1317,7 @@
                 <tr class='border-b border-gray-100'>
                     <td class='p-3 font-semibold'>${c}</td>
                     <td class='p-3'>
-                        <button class='bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition text-[10px]' onclick='deleteCategory(${index})'>Hapus</button>
+                        <button class='bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition text-[10px]' onclick="deleteCategory(${index})">Hapus</button>
                     </td>
                 </tr>`;
             });
@@ -1284,13 +1329,13 @@
             if (!val) return;
             dbCategories.push(val);
             document.getElementById('input-kategori-baru').value = "";
-            initApp();
+            renderAll();
         }
 
         function deleteCategory(index) {
             if (confirm("Menghapus kategori akan berdampak pada navigasi. Tetap hapus?")) {
                 dbCategories.splice(index, 1);
-                initApp();
+                renderAll();
             }
         }
 
@@ -1305,8 +1350,8 @@
                     <td class='p-3'>${b.author}</td>
                     <td class='p-3'>${b.date}</td>
                     <td class='p-3 space-x-2'>
-                        <button class='bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition' onclick='openEditBlogModal('${b.id}')'><i class='fa-solid fa-edit'/></button>
-                        <button class='bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition' onclick='deleteBlog('${b.id}')'><i class='fa-solid fa-trash'/></button>
+                        <button class='bg-blue-50 text-blue-600 px-2 py-1 rounded hover:bg-blue-100 transition' onclick="openEditBlogModal('${b.id}')"><i class='fa-solid fa-edit'/></button>
+                        <button class='bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition' onclick="deleteBlog('${b.id}')"><i class='fa-solid fa-trash'/></button>
                     </td>
                 </tr>`;
             });
@@ -1360,14 +1405,14 @@
                 dbBlogs.push({ id: newId, title, excerpt, content, date: new Date().toISOString().split('T')[0], author });
             }
 
-            initApp();
+            renderAll();
             closeAdminBlogModal();
         }
 
         function deleteBlog(id) {
             if (confirm("Apakah Anda yakin ingin menghapus artikel ini?")) {
                 dbBlogs = dbBlogs.filter(b => b.id !== id);
-                initApp();
+                renderAll();
             }
         }
 
@@ -1385,7 +1430,7 @@
                     <td class='p-3 font-bold'>${formatRupiah(s.total)}</td>
                     <td class='p-3'><span class='px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}'>${s.status}</span></td>
                     <td class='p-3 space-x-2'>
-                        <button class='bg-green-50 text-green-700 px-2 py-1 rounded hover:bg-green-100 transition text-[10px] font-bold' onclick='toggleSaleStatus('${s.id}')'>Proses / Selesai</button>
+                        <button class='bg-green-50 text-green-700 px-2 py-1 rounded hover:bg-green-100 transition text-[10px] font-bold' onclick="toggleSaleStatus('${s.id}')">Proses / Selesai</button>
                     </td>
                 </tr>`;
             });
